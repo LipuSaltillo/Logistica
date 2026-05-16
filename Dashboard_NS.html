@@ -926,6 +926,35 @@ const INPUTS_NAME = 'Inputs';
 const FIRST_CHUNK = 15000;
 const CHUNK       = 50000;
 
+// ── Mapeo de columnas: nombres preferidos + alias alternativos ──────
+// El valor es una lista de posibles nombres en el sheet (orden de prioridad).
+// autoDetectColumns() reemplaza C con los nombres reales encontrados.
+const C_ALIASES = {
+  fecha:    ['start_date','fecha','Fecha','date','Date','start date','Fecha Inicio','FECHA'],
+  semana:   ['Semana','semana','Week','week','SEMANA','Sem','sem'],
+  udn:      ['business_unit','UDN','udn','Unidad de Negocio','unidad_negocio','Unidad','BUSINESS_UNIT','Business Unit'],
+  cliente:  ['group','cliente','Cliente','CLIENTE','Group','GROUP','Grupo','grupo'],
+  gerente:  ['Gerente','gerente','GERENTE','Manager','manager'],
+  jefe:     ['Jefe','jefe','JEFE','Supervisor','supervisor'],
+  coord:    ['Coordinador','coordinador','COORDINADOR','Coord','coord'],
+  turno:    ['Turno','turno','TURNO','Shift','shift'],
+  retardo:  ['Inicios_Tarde','inicios_tarde','Inicios Tarde','Inicio Tarde','ini_tarde','INI_TARDE','Retardo Inicio','retardo','Retardo'],
+  viajes:   ['Cantidad de viajes','viajes','Viajes','VIAJES','Trips','trips','cantidad_viajes','Cantidad Viajes','Total Viajes'],
+  llegada:  ['Llegadas_Tarde','llegadas_tarde','Llegadas Tarde','Llegada Tarde','lle_tarde','LLE_TARDE','Retardo Llegada'],
+  minIni:   ['Minutos de Retraso','min_ini','minutos_ini','Min Ini','MIN_INI','Minutos Inicio','minutos retraso inicio','Min Retraso Ini','Minutos_Retraso'],
+  minLle:   ['Minutos llegadas','min_lle','minutos_lle','Min Lle','MIN_LLE','Minutos Llegada','minutos retraso llegada','Min Retraso Lle'],
+  driver:   ['operador','Operador','OPERADOR','driver','Driver','operator','Operator','chofer','Chofer'],
+  car:      ['car','Car','CAR','unidad','Unidad','UNIDAD','vehiculo','Vehiculo','Vehículo','Carro','carro'],
+  ruta:     ['des','ruta','Ruta','RUTA','route','Route','descripcion','Descripcion','Descripción','destination','Destination','des'],
+  startTime:['start_time','hora_ini','hora inicio','Hora Inicio','HoraIni','start time','Start Time'],
+  startEta: ['start_eta','eta_ini','ETA Inicio','eta inicio','start eta','Start ETA'],
+  endTime:  ['end_time','hora_lle','hora llegada','Hora Llegada','HoraLle','end time','End Time'],
+  endEta:   ['end_eta','eta_lle','ETA Llegada','eta llegada','end eta','End ETA'],
+  id:       ['id','ID','Id','trip_id','TripID','viaje_id'],
+  workerId: ['worker_id','Worker_ID','WorkerID','operador_id','OperadorID'],
+};
+
+// C se llenará con los nombres reales al detectar columnas
 const C = {
   fecha:'start_date', semana:'Semana', udn:'business_unit', cliente:'group',
   gerente:'Gerente', jefe:'Jefe', coord:'Coordinador', turno:'Turno',
@@ -934,6 +963,85 @@ const C = {
   startTime:'start_time', startEta:'start_eta', endTime:'end_time', endEta:'end_eta',
   id:'id', workerId:'worker_id',
 };
+
+// Auto-detecta columnas reales a partir de los encabezados del sheet
+function autoDetectColumns(headers){
+  const hNorm = headers.map(h=>h.trim());
+  const hLow  = hNorm.map(h=>h.toLowerCase().replace(/[_\s]+/g,' '));
+  const matched = {};
+  const unmatched = [];
+
+  for(const [field, aliases] of Object.entries(C_ALIASES)){
+    let found = null;
+    for(const alias of aliases){
+      const aLow = alias.toLowerCase().replace(/[_\s]+/g,' ');
+      // Exacto primero
+      const idx = hNorm.findIndex(h=>h===alias);
+      if(idx>=0){ found=hNorm[idx]; break; }
+      // Case-insensitive
+      const idx2 = hLow.findIndex(h=>h===aLow);
+      if(idx2>=0){ found=hNorm[idx2]; break; }
+    }
+    if(found){ C[field]=found; matched[field]=found; }
+    else unmatched.push(field);
+  }
+
+  // Mostrar diagnóstico en consola
+  console.group('📋 Detección de columnas — Ns Lipu');
+  console.log('Headers reales:', hNorm);
+  console.log('Mapeadas:', matched);
+  if(unmatched.length) console.warn('⚠️ Sin mapear:', unmatched);
+  console.groupEnd();
+
+  // Panel visual de diagnóstico (se puede cerrar)
+  showDiagPanel(hNorm, matched, unmatched);
+}
+
+function showDiagPanel(headers, matched, unmatched){
+  // Solo mostrar si hay columnas sin mapear relevantes
+  const critical=['fecha','udn','cliente','retardo','viajes','llegada'];
+  const critMissing=critical.filter(f=>unmatched.includes(f));
+  if(!critMissing.length && unmatched.length===0) return; // todo ok
+
+  const div=document.createElement('div');
+  div.id='diagPanel';
+  div.style.cssText='position:fixed;bottom:16px;right:16px;z-index:9999;background:#1a2236;color:#e5e7eb;'+
+    'border-radius:10px;padding:14px 16px;font-family:Inter,sans-serif;font-size:12px;max-width:420px;'+
+    'box-shadow:0 8px 32px rgba(0,0,0,.4);border:1px solid #374151;max-height:80vh;overflow-y:auto;';
+
+  const missingHtml = unmatched.map(f=>{
+    const aliases=C_ALIASES[f]||[];
+    const isCrit=critical.includes(f);
+    return `<div style="margin:.2rem 0;${isCrit?'color:#f87171;font-weight:700':'color:#fbbf24'}">
+      ${isCrit?'🔴':'🟡'} <b>${f}</b> → esperaba: <span style="opacity:.7">${aliases.slice(0,3).join(' / ')}</span>
+    </div>`;
+  }).join('');
+
+  const mappedHtml = Object.entries(matched).slice(0,8).map(([f,v])=>
+    `<div style="margin:.15rem 0;color:#86efac">✅ <b>${f}</b> → "${v}"</div>`
+  ).join('');
+
+  div.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-weight:700;color:#7ed321">🔍 Diagnóstico de Columnas</span>
+      <button onclick="this.parentElement.parentElement.remove()"
+        style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:16px;line-height:1">✕</button>
+    </div>
+    ${critMissing.length?`<div style="background:#7f1d1d;border-radius:6px;padding:8px;margin-bottom:8px;color:#fca5a5;font-size:11px">
+      ⚠️ Columnas críticas no encontradas: <b>${critMissing.join(', ')}</b><br>
+      El dashboard no puede mostrar datos sin estas columnas.
+    </div>`:''}
+    <div style="margin-bottom:6px;font-size:11px;color:#9ca3af">Encabezados reales en "Ns Lipu":</div>
+    <div style="background:#111827;border-radius:6px;padding:8px;margin-bottom:10px;font-size:10px;color:#d1d5db;word-break:break-all">
+      ${headers.join(' · ')}
+    </div>
+    ${unmatched.length?`<div style="margin-bottom:6px;font-size:11px;color:#9ca3af">Sin mapear (${unmatched.length}):</div>${missingHtml}`:''}
+    <details style="margin-top:8px"><summary style="cursor:pointer;color:#9ca3af;font-size:11px">Ver columnas mapeadas (${Object.keys(matched).length})</summary>
+      <div style="margin-top:6px">${mappedHtml}</div>
+    </details>
+  `;
+  document.body.appendChild(div);
+}
 
 let DATA         = [];
 let loadedMonths = new Set();
@@ -1022,6 +1130,13 @@ function parseCSV(text){
   const lines=text.trim().split(/\r?\n/);
   if(lines.length<2) return [];
   const hdrs=parseCSVLine(lines[0]);
+
+  // ── Auto-detectar columnas la primera vez que se parsea el sheet principal ──
+  if(!parseCSV._detected && hdrs.length > 3){
+    parseCSV._detected = true;
+    autoDetectColumns(hdrs);
+  }
+
   if(!hdrs.includes(C.udn)){
     const f=hdrs.find(h=>h==='business_unit'||h.toLowerCase().includes('business')||h.toLowerCase().includes('unidad')||h.toLowerCase().includes('udn')||h.toLowerCase().includes('negocio'));
     if(f) C.udn=f;

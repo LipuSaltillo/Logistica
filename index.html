@@ -124,11 +124,24 @@ body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;background:#f3f4f6}
   </main>
 </div>
 
-<!-- Validator: small blob encrypted with the password. If decryption succeeds and content matches, password is correct. -->
-<script id="trx-validator" type="text/plain">mmF01QsTmGJCuAdVtyOU5miutD2BnjYzxPkxPG5QThu/lF3dMBECPAE1/Sd1KOhWNiWV0RPF56aw+UOF95W6+mE=</script>
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  PARA CAMBIAR LA CONTRASEÑA EN EL FUTURO:                   ║
+  ║                                                              ║
+  ║  1. Abre la consola del navegador (F12 → Console)            ║
+  ║  2. Pega y ejecuta la función trxEncrypt que está            ║
+  ║     al final de este archivo                                 ║
+  ║  3. Llama: trxEncrypt("trx-settepi-garcia-ok", "TuNuevaPass")║
+  ║  4. Copia el resultado y reemplaza el contenido del          ║
+  ║     elemento <script id="trx-validator"> de abajo            ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
+
+<!-- Validator blob — cifrado con la contraseña actual -->
+<script id="trx-validator" type="text/plain">d5kLXDKLL8ahHPhPDmfKqwmt4TfVkipPK7kP9NkLyEvZg0gLyAaZLhHaAJoNROOnyokJ5O5loaXwwcjPpBSYnzk=</script>
 
 <script>
-const VALIDATOR_EXPECTED = "trx-lipu-ok";
+const VALIDATOR_EXPECTED = "trx-settepi-garcia-ok";
 
 // If already authenticated, skip login
 (async function autoAuth(){
@@ -189,6 +202,27 @@ async function trxDecrypt(b64, password){
   const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, ct);
   return new TextDecoder().decode(pt);
 }
+
+// ── Función de utilidad para generar un nuevo blob cuando quieras cambiar la contraseña ──
+// Uso desde la consola del navegador: trxEncrypt("trx-settepi-garcia-ok", "NuevaContrasena")
+window.trxEncrypt = async function(text, password){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const km   = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  const key  = await crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt, iterations:250000, hash:'SHA-256'},
+    km, {name:'AES-GCM', length:256}, false, ['encrypt']
+  );
+  const ct   = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, new TextEncoder().encode(text));
+  const combined = new Uint8Array(salt.length + iv.length + ct.byteLength);
+  combined.set(salt, 0);
+  combined.set(iv, 16);
+  combined.set(new Uint8Array(ct), 28);
+  const b64 = btoa(String.fromCharCode(...combined));
+  console.log('%cNuevo blob generado — cópialo al <script id="trx-validator">:', 'color:green;font-weight:bold');
+  console.log(b64);
+  return b64;
+};
 </script>
 </body>
 </html>

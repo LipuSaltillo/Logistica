@@ -372,15 +372,26 @@ function parseCSV(text){
   let rawHeaders = parseCSVLine(lines[0]);
   let headers = rawHeaders.map(h=>h.replace(/["\uFEFF]/g,'').toLowerCase().trim());
 
-  // Detectar columnas de forma flexible
-  let idxNombre = headers.findIndex(h=>h.includes('nombre')||h.includes('operador')||h.includes('driver'));
-  let idxDist   = headers.findIndex(h=>h.includes('distance')||h.includes('distancia'));
-  let idxGer    = headers.findIndex(h=>h.includes('gerente')||h.includes('manager'));
-  let idxPla    = headers.findIndex(h=>h.includes('planta')||h.includes('plant')||h.includes('cliente')||h.includes('site'));
-  let idxOrd    = headers.findIndex(h=>h.includes('ordenar')||h.includes('order')||h.includes('grupo'));
+  // Nombres exactos de la hoja VA (busqueda exacta primero, luego flexible)
+  let idxDist   = headers.findIndex(h=>h==='distance km');
+  if(idxDist<0)   idxDist   = headers.findIndex(h=>h.includes('distance')||h.includes('distancia'));
 
-  // Fallback: si no hay nombre, tomar primera columna de texto
-  if(idxNombre<0) idxNombre=0;
+  let idxGer    = headers.findIndex(h=>h==='gerente');
+  if(idxGer<0)    idxGer    = headers.findIndex(h=>h.includes('gerente'));
+
+  let idxPla    = headers.findIndex(h=>h==='planta');
+  if(idxPla<0)    idxPla    = headers.findIndex(h=>h==='plant');
+
+  // Ordenar exacto (evitar que atrape "task order")
+  let idxOrd    = headers.findIndex(h=>h==='ordenar');
+
+  // Tour Driver Name para el operador
+  let idxNombre = headers.findIndex(h=>h==='tour driver name');
+  if(idxNombre<0) idxNombre = headers.findIndex(h=>h.includes('driver name'));
+  if(idxNombre<0) idxNombre = headers.findIndex(h=>h.includes('nombre')||h.includes('operador'));
+  if(idxNombre<0) idxNombre = 0;
+
+  console.log('Indices detectados:', {idxDist, idxGer, idxPla, idxOrd, idxNombre});
 
   DATA=[];
   for(let i=1;i<lines.length;i++){

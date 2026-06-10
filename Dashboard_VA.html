@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script>if(!sessionStorage.getItem("trx_auth"))location.replace("index.html");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distancia VA | Traxión</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f0f2f7;font-family:'Inter',sans-serif}
+nav{background:#1f2937;padding:12px 24px;display:flex;gap:20px;align-items:center}
+nav a{color:#e5e7eb;text-decoration:none;font-weight:500;padding:6px 12px;border-radius:6px}
+nav a:first-child{color:#84cc16;font-weight:700}
+nav a:hover{background:#374151}
+.dropdown{position:relative;display:inline-block}
+.dropdown-toggle{color:#e5e7eb;font-weight:500;padding:6px 12px;border-radius:6px;cursor:pointer;background:transparent;border:none;font-size:14px}
+.dropdown-toggle:hover{background:#374151}
+.dropdown-menu{display:none;position:absolute;top:100%;left:0;background:#374151;min-width:180px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:200}
+.dropdown.open .dropdown-menu{display:block}
+.dropdown-menu a{display:block;padding:10px 16px;color:#e5e7eb}
+.dropdown-menu a.active{background:#84cc16;color:#1f2937}
+.layout{display:flex}
+.sidebar{width:210px;background:#fff;border-right:1px solid #dde3f0;padding:16px;height:calc(100vh - 50px);position:sticky;top:50px;overflow-y:auto}
+.sb-title{font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7a99;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.sb-reset{background:transparent;border:none;cursor:pointer;font-size:14px;color:#6b7a99}
+.fg{margin-bottom:12px}
+.fg label{font-size:10px;font-weight:700;color:#6b7a99;display:block;margin-bottom:4px}
+.sc-wrap{position:relative}
+.sc-input{width:100%;padding:6px 24px 6px 8px;border:1px solid #dde3f0;border-radius:6px;font-size:12px;outline:none}
+.sc-input:focus{border-color:#84cc16}
+.sc-arrow{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:#6b7a99;pointer-events:none}
+.sc-dropdown{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #84cc16;border-radius:6px;max-height:160px;overflow-y:auto;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.sc-wrap.open .sc-dropdown{display:block}
+.sc-opt{padding:6px 10px;font-size:12px;cursor:pointer}
+.sc-opt:hover{background:#f0f2f7}
+.sc-opt.selected{background:#e8f5e0;font-weight:600}
+.btn-reset{width:100%;padding:6px;border:1px solid #dde3f0;border-radius:6px;background:transparent;font-size:12px;cursor:pointer;margin-top:8px;color:#6b7a99}
+.btn-reset:hover{background:#f0f2f7}
+.sidebar-stat{background:#f8faff;border-radius:8px;padding:10px;margin-top:16px;font-size:11px}
+.sidebar-stat-lbl{color:#6b7a99;margin-bottom:4px}
+.sidebar-stat-val{font-size:18px;font-weight:700;color:#222d42}
+.sidebar-stat-sub{color:#6b7a99;font-size:10px;margin-top:2px}
+.compliance-bar{height:6px;background:#eee;border-radius:3px;margin-top:6px;overflow:hidden}
+.compliance-fill{height:100%;border-radius:3px;transition:width .4s}
+.main{flex:1;padding:20px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.loading-overlay{position:fixed;inset:0;background:#f0f2f7;display:flex;align-items:center;justify-content:center;z-index:1000;transition:opacity .4s}
+.loading-overlay.hidden{opacity:0;pointer-events:none}
+.loading-box{background:#fff;padding:32px;border-radius:16px;text-align:center}
+.loading-spinner{width:40px;height:40px;border:3px solid #dde3f0;border-top-color:#84cc16;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.kpi-section{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpi-chip{background:#222d42;border-radius:12px;padding:16px;color:#fff;position:relative;overflow:hidden}
+.kpi-chip::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.03)}
+.kpi-chip-lbl{font-size:10px;text-transform:uppercase;opacity:.6;margin-bottom:8px;letter-spacing:.5px}
+.kpi-chip-val{font-size:28px;font-weight:700;color:#84cc16}
+.kpi-chip-val.red{color:#f87171}
+.kpi-chip-val.amber{color:#fbbf24}
+.kpi-chip-sub{font-size:11px;opacity:.7;margin-top:6px}
+.section-divider{display:flex;align-items:center;gap:12px;margin:4px 0}
+.section-divider-title{font-weight:700;font-size:13px;white-space:nowrap}
+.section-divider-sub{font-size:11px;color:#6b7a99;white-space:nowrap}
+.section-divider-line{flex:1;height:1px;background:#dde3f0}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chart-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}
+.chart-card.full{grid-column:1/-1}
+.chart-hdr{padding:12px 20px;border-bottom:1px solid #f0f2f7;display:flex;justify-content:space-between;align-items:center}
+.chart-hdr-title{font-weight:700;font-size:13px}
+.chart-hdr-sub{font-size:11px;color:#6b7a99}
+.chart-wrap{padding:16px;height:260px}
+.chart-wrap.tall{height:300px}
+.table-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}
+.table-hdr{padding:12px 20px;border-bottom:1px solid #dde3f0;display:flex;justify-content:space-between;align-items:center}
+.table-hdr-title{font-weight:700;font-size:13px}
+.table-count{font-size:11px;color:#6b7a99;background:#f0f2f7;padding:3px 10px;border-radius:20px}
+.table-scroll{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{background:#222d42;color:#fff;padding:8px 12px;font-size:11px;text-align:left;cursor:pointer;user-select:none;white-space:nowrap}
+.data-table th.r{text-align:right}
+.data-table th:hover{background:#374151}
+.data-table td{padding:8px 12px;font-size:12px;border-bottom:1px solid #f0f2f7;white-space:nowrap}
+.data-table td.r{text-align:right}
+.data-table tbody tr:hover{background:#f8faff}
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.pill.green{background:#e8f5e0;color:#2e7d32}
+.pill.amber{background:#fff8e1;color:#e65100}
+.pill.red{background:#ffebee;color:#c62828}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:700}
+.rank-badge.gold{background:#fef3c7;color:#92400e}
+.rank-badge.silver{background:#f1f5f9;color:#475569}
+.rank-badge.bronze{background:#fef9f0;color:#92400e}
+.rank-badge.rest{background:#f0f2f7;color:#6b7a99}
+.dist-bar-wrap{display:flex;align-items:center;gap:8px}
+.dist-bar-bg{flex:1;height:6px;background:#f0f2f7;border-radius:3px;overflow:hidden;min-width:60px}
+.dist-bar-fill{height:100%;border-radius:3px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:1000}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:12px;width:90%;max-width:700px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column}
+.modal-head{padding:16px 20px;background:#222d42;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{font-size:15px}
+.modal-close{background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer}
+.modal-body{overflow-y:auto;padding:16px;flex:1}
+.modal-table{width:100%;border-collapse:collapse}
+.modal-table th{background:#f0f2f7;padding:8px 12px;font-size:11px;text-align:left}
+.modal-table th.r{text-align:right}
+.modal-table td{padding:8px 12px;font-size:12px;border-bottom:1px solid #eee}
+.modal-table td.r{text-align:right}
+.fecha-badge{background:#fff;border:1px solid #dde3f0;border-radius:20px;padding:4px 12px;font-size:12px;color:#6b7a99}
+.kpi-header-row{display:flex;justify-content:space-between;align-items:center}
+.kpi-header-row h2{font-size:16px;font-weight:700;color:#222d42}
+.err{background:#ffebee;border-left:4px solid #c62828;padding:12px;border-radius:8px;margin-bottom:16px}
+.hidden{display:none!important}
+.meta-goal{display:inline-flex;align-items:center;gap:6px;background:#e8f5e0;padding:4px 12px;border-radius:20px;font-size:11px;color:#2e7d32;font-weight:600}
+.meta-goal span{color:#1a6b35}
+</style>
+</head>
+<body>
+<nav>
+  <a href="#">TRAXIÓN</a>
+  <div class="dropdown" id="dd1">
+    <button class="dropdown-toggle" onclick="toggleDropdown('dd1')">Logística ▼</button>
+    <div class="dropdown-menu">
+      <a href="#">Nivel de Servicio</a>
+      <a href="#">Kilómetros</a>
+      <a href="#" class="active">Distancia VA</a>
+      <a href="#">Flota</a>
+      <a href="#">Ralentí</a>
+    </div>
+  </div>
+</nav>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="loading-spinner"></div>
+    <div style="font-size:13px;color:#6b7a99">Cargando hoja VA...</div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-title">FILTROS <button class="sb-reset" onclick="resetFilters()" title="Limpiar filtros">↺</button></div>
+
+    <div class="fg">
+      <label>Gerente</label>
+      <div class="sc-wrap" id="sc-ger">
+        <input class="sc-input" id="sc-ger-input" placeholder="Todos" onfocus="scOpen('ger')" oninput="scFilter('ger')">
+        <span class="sc-arrow">▼</span>
+        <div class="sc-dropdown" id="sc-ger-dd"></div>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Planta</label>
+      <div class="sc-wrap" id="sc-pla">
+        <input class="sc-input" id="sc-pla-input" placeholder="Todos" onfocus="scOpen('pla')" oninput="scFilter('pla')">
+        <span class="sc-arrow">▼</span>
+        <div class="sc-dropdown" id="sc-pla-dd"></div>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Ordenar</label>
+      <div class="sc-wrap" id="sc-ord">
+        <input class="sc-input" id="sc-ord-input" placeholder="Todos" onfocus="scOpen('ord')" oninput="scFilter('ord')">
+        <span class="sc-arrow">▼</span>
+        <div class="sc-dropdown" id="sc-ord-dd"></div>
+      </div>
+    </div>
+
+    <button class="btn-reset" onclick="resetFilters()">Limpiar filtros</button>
+
+    <!-- Mini-stats sidebar -->
+    <div class="sidebar-stat" id="sidebarStat" style="display:none">
+      <div class="sidebar-stat-lbl">Cumplimiento (≤5 km)</div>
+      <div class="sidebar-stat-val" id="sbPct">–</div>
+      <div class="sidebar-stat-sub" id="sbPctSub"></div>
+      <div class="compliance-bar"><div class="compliance-fill" id="sbBar" style="background:#84cc16;width:0%"></div></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="err hidden" id="errBanner">⚠️ <span id="errMsg"></span></div>
+
+    <div class="kpi-header-row">
+      <div style="display:flex;align-items:center;gap:12px">
+        <h2>Distancia al Trabajo · VA</h2>
+        <div class="meta-goal">Meta: <span>≤ 5 km</span></div>
+      </div>
+      <div class="fecha-badge" id="fechaActualizacion">–</div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-section">
+      <div class="kpi-chip">
+        <div class="kpi-chip-lbl">Total Operadores</div>
+        <div class="kpi-chip-val" id="kpiTotal">–</div>
+        <div class="kpi-chip-sub" id="kpiTotalSub"></div>
+      </div>
+      <div class="kpi-chip">
+        <div class="kpi-chip-lbl">Dentro de Meta ≤5 km</div>
+        <div class="kpi-chip-val" id="kpiOk">–</div>
+        <div class="kpi-chip-sub" id="kpiOkSub"></div>
+      </div>
+      <div class="kpi-chip">
+        <div class="kpi-chip-lbl">Fuera de Meta >5 km</div>
+        <div class="kpi-chip-val red" id="kpiFuera">–</div>
+        <div class="kpi-chip-sub" id="kpiFueraSub"></div>
+      </div>
+      <div class="kpi-chip">
+        <div class="kpi-chip-lbl">Distancia Promedio</div>
+        <div class="kpi-chip-val amber" id="kpiProm">–</div>
+        <div class="kpi-chip-sub" id="kpiPromSub">km promedio</div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 1 -->
+    <div class="charts-row">
+      <!-- Distribución por rango -->
+      <div class="chart-card">
+        <div class="chart-hdr">
+          <div>
+            <div class="chart-hdr-title">Distribución por rango de distancia</div>
+            <div class="chart-hdr-sub">Número de operadores por tramo</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartRangos"></canvas></div>
+      </div>
+      <!-- Cumplimiento por Gerente -->
+      <div class="chart-card">
+        <div class="chart-hdr">
+          <div>
+            <div class="chart-hdr-title">Cumplimiento por Gerente</div>
+            <div class="chart-hdr-sub">% operadores ≤5 km</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartGerente"></canvas></div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 2 -->
+    <div class="charts-row">
+      <!-- Distancia promedio por planta -->
+      <div class="chart-card">
+        <div class="chart-hdr">
+          <div>
+            <div class="chart-hdr-title">Distancia promedio por Planta</div>
+            <div class="chart-hdr-sub">Km promedio · línea meta = 5 km</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartPlanta"></canvas></div>
+      </div>
+      <!-- Scatter / distribución acumulada -->
+      <div class="chart-card">
+        <div class="chart-hdr">
+          <div>
+            <div class="chart-hdr-title">Acumulado por distancia</div>
+            <div class="chart-hdr-sub">Operadores acumulados según km</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartAcum"></canvas></div>
+      </div>
+    </div>
+
+    <!-- TOP 20 -->
+    <div class="section-divider">
+      <div class="section-divider-title">🚨 Top 20 peores distancias</div>
+      <div class="section-divider-sub">Mayor distancia domicilio → planta</div>
+      <div class="section-divider-line"></div>
+    </div>
+    <div class="table-card">
+      <div class="table-hdr">
+        <div class="table-hdr-title">Operadores con mayor km</div>
+        <span class="table-count" id="cntTop">–</span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:40px">#</th>
+              <th onclick="sortTable('nombre')">Operador</th>
+              <th onclick="sortTable('planta')">Planta</th>
+              <th onclick="sortTable('gerente')">Gerente</th>
+              <th onclick="sortTable('ordenar')">Ordenar</th>
+              <th class="r" onclick="sortTable('dist')">Distance km</th>
+              <th class="r">Barra</th>
+              <th class="r">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="top20Tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TABLA COMPLETA -->
+    <div class="section-divider">
+      <div class="section-divider-title">Todos los operadores</div>
+      <div class="section-divider-line"></div>
+    </div>
+    <div class="table-card">
+      <div class="table-hdr">
+        <div class="table-hdr-title">Detalle completo</div>
+        <span class="table-count" id="cntAll">–</span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th onclick="sortAll('nombre')">Operador</th>
+              <th onclick="sortAll('planta')">Planta</th>
+              <th onclick="sortAll('gerente')">Gerente</th>
+              <th onclick="sortAll('ordenar')">Ordenar</th>
+              <th class="r" onclick="sortAll('dist')">Distance km</th>
+              <th class="r">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="allTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL gerente -->
+<div class="modal-overlay" id="unitModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modalTitle">–</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────────────
+const SHEET_ID = '1qQV_wyKt0lyIFgRaeWx-kz-a8TbRMfOFDlEkFhLFM8I';
+const SHEET_VA = 'VA';
+const META_KM  = 5;
+
+// ─── STATE ─────────────────────────────────────────────────────────
+let DATA = [];
+let SC_SEL = {ger:'', pla:'', ord:''};
+let SC_VALS = {ger:[], pla:[], ord:[]};
+let sortColTop = 'dist', sortDirTop = -1;
+let sortColAll = 'dist', sortDirAll = -1;
+let chartRangos=null, chartGerente=null, chartPlanta=null, chartAcum=null;
+
+// ─── UTILS ─────────────────────────────────────────────────────────
+function numVal(v){ let n=parseFloat(String(v||'0').replace(/[,%\s]/g,'')); return isNaN(n)?0:n; }
+function fmtN(n,d=1){ return (n||0).toFixed(d); }
+function csvUrl(){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_VA)}`; }
+
+function parseCSVLine(line){
+  let cols=[], inQ=false, cur='';
+  for(let c of line){
+    if(c==='"'){ inQ=!inQ; }
+    else if(c===',' && !inQ){ cols.push(cur.trim()); cur=''; }
+    else { cur+=c; }
+  }
+  cols.push(cur.trim());
+  return cols;
+}
+
+function parseCSV(text){
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  let lines=text.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2){ return; }
+
+  let rawHeaders = parseCSVLine(lines[0]);
+  let headers = rawHeaders.map(h=>h.replace(/["\uFEFF]/g,'').toLowerCase().trim());
+
+  // Detectar columnas de forma flexible
+  let idxNombre = headers.findIndex(h=>h.includes('nombre')||h.includes('operador')||h.includes('driver'));
+  let idxDist   = headers.findIndex(h=>h.includes('distance')||h.includes('distancia'));
+  let idxGer    = headers.findIndex(h=>h.includes('gerente')||h.includes('manager'));
+  let idxPla    = headers.findIndex(h=>h.includes('planta')||h.includes('plant')||h.includes('cliente')||h.includes('site'));
+  let idxOrd    = headers.findIndex(h=>h.includes('ordenar')||h.includes('order')||h.includes('grupo'));
+
+  // Fallback: si no hay nombre, tomar primera columna de texto
+  if(idxNombre<0) idxNombre=0;
+
+  DATA=[];
+  for(let i=1;i<lines.length;i++){
+    let cols=parseCSVLine(lines[i]);
+    if(cols.length<2) continue;
+    let dist=idxDist>=0?numVal(cols[idxDist]):0;
+    DATA.push({
+      nombre : cols[idxNombre]||`Fila ${i}`,
+      dist   : dist,
+      gerente: idxGer>=0?(cols[idxGer]||'Sin gerente'):'Sin gerente',
+      planta : idxPla>=0?(cols[idxPla]||'Sin planta'):'Sin planta',
+      ordenar: idxOrd>=0?(cols[idxOrd]||'–'):'–',
+      _raw   : cols
+    });
+  }
+
+  // exponer headers detectados para debug
+  window._headers = headers;
+  window._idxMap  = {idxNombre,idxDist,idxGer,idxPla,idxOrd};
+}
+
+// ─── FILTERS ───────────────────────────────────────────────────────
+function filteredData(){
+  return DATA.filter(r=>{
+    if(SC_SEL.ger && r.gerente!==SC_SEL.ger) return false;
+    if(SC_SEL.pla && r.planta!==SC_SEL.pla) return false;
+    if(SC_SEL.ord && r.ordenar!==SC_SEL.ord) return false;
+    return true;
+  });
+}
+
+function cascadeFilters(){
+  SC_VALS.ger=[...new Set(DATA.map(r=>r.gerente).filter(v=>v&&v!=='Sin gerente'))].sort();
+  let g=SC_SEL.ger?DATA.filter(r=>r.gerente===SC_SEL.ger):DATA;
+  SC_VALS.pla=[...new Set(g.map(r=>r.planta).filter(v=>v&&v!=='Sin planta'))].sort();
+  let p=SC_SEL.pla?g.filter(r=>r.planta===SC_SEL.pla):g;
+  SC_VALS.ord=[...new Set(p.map(r=>r.ordenar).filter(v=>v&&v!=='–'))].sort();
+  ['ger','pla','ord'].forEach(k=>{ if(SC_SEL[k] && !SC_VALS[k].includes(SC_SEL[k])) SC_SEL[k]=''; });
+}
+
+// ─── SEARCHABLE COMBOS ─────────────────────────────────────────────
+function scOpen(k){ document.querySelectorAll('.sc-wrap').forEach(w=>w.classList.remove('open')); document.getElementById(`sc-${k}`).classList.add('open'); scRenderDD(k); }
+function scFilter(k){ if(SC_SEL[k]!==''){ SC_SEL[k]=''; cascadeFilters(); draw(); } document.getElementById(`sc-${k}`).classList.add('open'); scRenderDD(k); }
+function scRenderDD(k){
+  let dd=document.getElementById(`sc-${k}-dd`);
+  let q=document.getElementById(`sc-${k}-input`).value.toLowerCase();
+  let f=SC_VALS[k].filter(v=>v.toLowerCase().includes(q));
+  dd.innerHTML=`<div class="sc-opt${SC_SEL[k]===''?' selected':''}" onclick="scSelect('${k}','')">Todos</div>`
+    +f.map(v=>`<div class="sc-opt${SC_SEL[k]===v?' selected':''}" onclick="scSelect('${k}',${JSON.stringify(v)})">${v}</div>`).join('');
+}
+function scSelect(k,v){ SC_SEL[k]=v; document.getElementById(`sc-${k}-input`).value=v; document.getElementById(`sc-${k}`).classList.remove('open'); cascadeFilters(); draw(); }
+function resetFilters(){ Object.keys(SC_SEL).forEach(k=>{ SC_SEL[k]=''; document.getElementById(`sc-${k}-input`).value=''; }); cascadeFilters(); draw(); }
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.sc-wrap')) document.querySelectorAll('.sc-wrap').forEach(w=>w.classList.remove('open'));
+  if(!e.target.closest('.dropdown')) document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));
+});
+
+// ─── KPIs ──────────────────────────────────────────────────────────
+function drawKPIs(rows){
+  let total=rows.length;
+  let ok=rows.filter(r=>r.dist<=META_KM).length;
+  let fuera=total-ok;
+  let prom=total?rows.reduce((s,r)=>s+r.dist,0)/total:0;
+  let pct=total?ok/total*100:0;
+
+  document.getElementById('kpiTotal').textContent=total.toLocaleString('es-MX');
+  document.getElementById('kpiTotalSub').textContent=SC_SEL.ger||SC_SEL.pla?'filtrado':'total registros';
+  document.getElementById('kpiOk').textContent=ok.toLocaleString('es-MX');
+  document.getElementById('kpiOkSub').textContent=pct.toFixed(1)+'% de cumplimiento';
+  document.getElementById('kpiFuera').textContent=fuera.toLocaleString('es-MX');
+  document.getElementById('kpiFueraSub').textContent=(100-pct).toFixed(1)+'% incumplen meta';
+  document.getElementById('kpiProm').textContent=fmtN(prom);
+  document.getElementById('kpiPromSub').textContent=`km promedio · meta: ${META_KM} km`;
+
+  // sidebar stat
+  let sbEl=document.getElementById('sidebarStat');
+  sbEl.style.display='block';
+  document.getElementById('sbPct').textContent=pct.toFixed(1)+'%';
+  document.getElementById('sbPctSub').textContent=`${ok} de ${total} operadores`;
+  let bar=document.getElementById('sbBar');
+  bar.style.width=pct+'%';
+  bar.style.background=pct>=80?'#84cc16':pct>=60?'#fbbf24':'#f87171';
+}
+
+// ─── CHART: RANGOS ─────────────────────────────────────────────────
+function drawChartRangos(rows){
+  let ranges=[{lbl:'0–2 km',min:0,max:2,col:'#84cc16'},{lbl:'2–5 km',min:2,max:5,col:'#4ade80'},
+              {lbl:'5–10 km',min:5,max:10,col:'#fbbf24'},{lbl:'10–20 km',min:10,max:20,col:'#f97316'},{lbl:'>20 km',min:20,max:Infinity,col:'#f87171'}];
+  let counts=ranges.map(r=>rows.filter(d=>d.dist>=r.min && d.dist<r.max).length);
+  let ctx=document.getElementById('chartRangos').getContext('2d');
+  if(chartRangos) chartRangos.destroy();
+  chartRangos=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:ranges.map(r=>r.lbl),
+      datasets:[{
+        label:'Operadores',
+        data:counts,
+        backgroundColor:ranges.map(r=>r.col),
+        borderRadius:6
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>`${c.raw} operadores`}},
+        annotation:{annotations:{metaLine:{type:'line',xMin:-0.5,xMax:1.5,borderColor:'transparent'}}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'#f0f2f7'},title:{display:true,text:'Operadores',font:{size:11}}}
+      }
+    }
+  });
+}
+
+// ─── CHART: GERENTE ────────────────────────────────────────────────
+function drawChartGerente(rows){
+  let gerMap=new Map();
+  rows.forEach(r=>{ if(!gerMap.has(r.gerente)) gerMap.set(r.gerente,{ok:0,total:0}); let g=gerMap.get(r.gerente); g.total++; if(r.dist<=META_KM) g.ok++; });
+  let gers=[...gerMap.entries()].sort((a,b)=>b[1].ok/b[1].total-a[1].ok/a[1].total);
+  let labels=gers.map(g=>g[0]);
+  let pcts=gers.map(g=>g[1].total?g[1].ok/g[1].total*100:0);
+  let ctx=document.getElementById('chartGerente').getContext('2d');
+  if(chartGerente) chartGerente.destroy();
+  chartGerente=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:labels,
+      datasets:[{
+        label:'% cumplimiento',
+        data:pcts,
+        backgroundColor:pcts.map(p=>p>=80?'#84cc16':p>=60?'#fbbf24':'#f87171'),
+        borderRadius:6
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>`${c.raw.toFixed(1)}% en meta`}}
+      },
+      scales:{
+        x:{min:0,max:100,grid:{color:'#f0f2f7'},ticks:{callback:v=>v+'%',font:{size:11}}},
+        y:{grid:{display:false},ticks:{font:{size:11}}}
+      }
+    }
+  });
+}
+
+// ─── CHART: PLANTA ─────────────────────────────────────────────────
+function drawChartPlanta(rows){
+  let plaMap=new Map();
+  rows.forEach(r=>{ if(!plaMap.has(r.planta)) plaMap.set(r.planta,{sum:0,cnt:0}); let p=plaMap.get(r.planta); p.sum+=r.dist; p.cnt++; });
+  let plas=[...plaMap.entries()].map(([k,v])=>({name:k,prom:v.cnt?v.sum/v.cnt:0})).sort((a,b)=>b.prom-a.prom);
+  let ctx=document.getElementById('chartPlanta').getContext('2d');
+  if(chartPlanta) chartPlanta.destroy();
+  chartPlanta=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:plas.map(p=>p.name),
+      datasets:[{
+        label:'Km promedio',
+        data:plas.map(p=>p.prom),
+        backgroundColor:plas.map(p=>p.prom<=META_KM?'#84cc16':'#f87171'),
+        borderRadius:6
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        annotation:{},
+        tooltip:{callbacks:{label:c=>`${c.raw.toFixed(2)} km promedio`}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{
+          beginAtZero:true,
+          grid:{color:'#f0f2f7'},
+          title:{display:true,text:'km',font:{size:11}},
+          ticks:{font:{size:11}}
+        }
+      },
+      plugins:{
+        annotation:{
+          annotations:{
+            metaLine:{
+              type:'line',
+              yMin:META_KM,yMax:META_KM,
+              borderColor:'#1f2937',borderWidth:2,borderDash:[5,5],
+              label:{content:'Meta 5 km',enabled:true,position:'end',font:{size:10}}
+            }
+          }
+        }
+      }
+    }
+  });
+  // dibujar línea de meta manualmente vía afterDraw
+  chartPlanta.options.plugins.afterDraw=()=>{};
+}
+
+// ─── CHART: ACUMULADO ──────────────────────────────────────────────
+function drawChartAcum(rows){
+  let sorted=[...rows].sort((a,b)=>a.dist-b.dist);
+  let maxKm=Math.min(Math.ceil((sorted[sorted.length-1]?.dist||50)/5)*5,80);
+  let step=1; let buckets=[];
+  for(let km=0;km<=maxKm;km+=step){
+    buckets.push({km, cnt:sorted.filter(r=>r.dist<=km).length});
+  }
+  let ctx=document.getElementById('chartAcum').getContext('2d');
+  if(chartAcum) chartAcum.destroy();
+  chartAcum=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:buckets.map(b=>b.km),
+      datasets:[{
+        label:'Operadores acumulados',
+        data:buckets.map(b=>b.cnt),
+        borderColor:'#84cc16',
+        backgroundColor:'rgba(132,204,22,.1)',
+        fill:true,
+        tension:0.3,
+        pointRadius:0,
+        pointHoverRadius:4,
+        borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{mode:'index',intersect:false,callbacks:{label:c=>`${c.raw} operadores ≤${c.label} km`}}
+      },
+      scales:{
+        x:{
+          grid:{display:false},
+          title:{display:true,text:'km',font:{size:11}},
+          ticks:{font:{size:11},maxTicksLimit:12}
+        },
+        y:{
+          beginAtZero:true,
+          grid:{color:'#f0f2f7'},
+          title:{display:true,text:'Operadores',font:{size:11}},
+          ticks:{font:{size:11}}
+        }
+      }
+    }
+  });
+}
+
+// ─── TOP 20 ────────────────────────────────────────────────────────
+function drawTop20(rows){
+  let top=[...rows].sort((a,b)=>b.dist-a.dist).slice(0,20);
+  document.getElementById('cntTop').textContent=`Top ${top.length}`;
+  let maxDist=top[0]?.dist||1;
+  let tbody=document.getElementById('top20Tbody');
+  if(!top.length){ tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#6b7a99;padding:20px">Sin datos</td></tr>'; return; }
+  tbody.innerHTML=top.map((r,i)=>{
+    let cls=r.dist<=META_KM?'green':r.dist<=10?'amber':'red';
+    let badgeCls=i===0?'gold':i===1?'silver':i===2?'bronze':'rest';
+    let barPct=Math.min(r.dist/maxDist*100,100);
+    let barCol=r.dist<=META_KM?'#84cc16':r.dist<=10?'#fbbf24':'#f87171';
+    return `<tr>
+      <td><span class="rank-badge ${badgeCls}">${i+1}</span></td>
+      <td>${r.nombre}</td>
+      <td>${r.planta}</td>
+      <td>${r.gerente}</td>
+      <td>${r.ordenar}</td>
+      <td class="r"><strong>${fmtN(r.dist,2)}</strong></td>
+      <td style="min-width:80px">
+        <div class="dist-bar-wrap">
+          <div class="dist-bar-bg"><div class="dist-bar-fill" style="width:${barPct}%;background:${barCol}"></div></div>
+        </div>
+      </td>
+      <td class="r"><span class="pill ${cls}">${r.dist<=META_KM?'OK':r.dist<=10?'Atención':'Crítico'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── TABLA COMPLETA ────────────────────────────────────────────────
+let _allSorted=[];
+function drawAll(rows){
+  _allSorted=[...rows];
+  if(sortColAll==='dist') _allSorted.sort((a,b)=>sortDirAll*(b.dist-a.dist));
+  else if(sortColAll==='nombre') _allSorted.sort((a,b)=>sortDirAll*a.nombre.localeCompare(b.nombre));
+  else if(sortColAll==='planta') _allSorted.sort((a,b)=>sortDirAll*a.planta.localeCompare(b.planta));
+  else if(sortColAll==='gerente') _allSorted.sort((a,b)=>sortDirAll*a.gerente.localeCompare(b.gerente));
+  else if(sortColAll==='ordenar') _allSorted.sort((a,b)=>sortDirAll*a.ordenar.localeCompare(b.ordenar));
+
+  document.getElementById('cntAll').textContent=_allSorted.length+' operadores';
+  let tbody=document.getElementById('allTbody');
+  if(!_allSorted.length){ tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#6b7a99;padding:20px">Sin datos</td></tr>'; return; }
+  tbody.innerHTML=_allSorted.map(r=>{
+    let cls=r.dist<=META_KM?'green':r.dist<=10?'amber':'red';
+    return `<tr>
+      <td>${r.nombre}</td>
+      <td>${r.planta}</td>
+      <td>${r.gerente}</td>
+      <td>${r.ordenar}</td>
+      <td class="r">${fmtN(r.dist,2)}</td>
+      <td class="r"><span class="pill ${cls}">${r.dist<=META_KM?'OK':r.dist<=10?'Atención':'Crítico'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function sortTable(col){ if(sortColTop===col) sortDirTop*=-1; else{ sortColTop=col; sortDirTop=-1; } draw(); }
+function sortAll(col){ if(sortColAll===col) sortDirAll*=-1; else{ sortColAll=col; sortDirAll=-1; } draw(); }
+
+// ─── MODAL por gerente ─────────────────────────────────────────────
+function openModal(gerente){
+  let rows=DATA.filter(r=>r.gerente===gerente).sort((a,b)=>b.dist-a.dist);
+  document.getElementById('modalTitle').textContent='Gerente: '+gerente;
+  let ok=rows.filter(r=>r.dist<=META_KM).length;
+  document.getElementById('modalBody').innerHTML=`
+    <p style="font-size:12px;color:#6b7a99;margin-bottom:12px">${rows.length} operadores · ${ok} en meta (${rows.length?Math.round(ok/rows.length*100):0}%)</p>
+    <table class="modal-table">
+      <thead><tr><th>Operador</th><th>Planta</th><th>Ordenar</th><th class="r">Distance km</th><th class="r">Estado</th></tr></thead>
+      <tbody>${rows.map(r=>{ let cls=r.dist<=META_KM?'green':r.dist<=10?'amber':'red'; return `<tr><td>${r.nombre}</td><td>${r.planta}</td><td>${r.ordenar}</td><td class="r">${fmtN(r.dist,2)}</td><td class="r"><span class="pill ${cls}">${r.dist<=META_KM?'OK':r.dist<=10?'Atención':'Crítico'}</span></td></tr>`; }).join('')}</tbody>
+    </table>`;
+  document.getElementById('unitModal').classList.add('open');
+}
+function closeModal(){ document.getElementById('unitModal').classList.remove('open'); }
+function toggleDropdown(id){ document.getElementById(id).classList.toggle('open'); }
+
+// ─── DRAW ALL ──────────────────────────────────────────────────────
+function draw(){
+  let rows=filteredData();
+  drawKPIs(rows);
+  drawChartRangos(rows);
+  drawChartGerente(rows);
+  drawChartPlanta(rows);
+  drawChartAcum(rows);
+  drawTop20(rows);
+  drawAll(rows);
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',async()=>{
+  document.getElementById('fechaActualizacion').innerHTML='📅 '+new Date().toLocaleDateString('es-MX');
+  let ov=document.getElementById('loadingOverlay');
+  try{
+    let res=await fetch(csvUrl());
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    let txt=await res.text();
+    if(!txt||txt.length<10) throw new Error('Respuesta vacía del servidor');
+    parseCSV(txt);
+    if(!DATA.length) throw new Error('No se encontraron registros en la hoja VA');
+    cascadeFilters();
+    draw();
+    ov.classList.add('hidden');
+    setTimeout(()=>ov.style.display='none',500);
+  }catch(e){
+    ov.style.display='none';
+    document.getElementById('errMsg').textContent=e.message;
+    document.getElementById('errBanner').classList.remove('hidden');
+    console.error('Dashboard VA error:',e);
+  }
+});
+</script>
+</body>
+</html>

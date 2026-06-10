@@ -28,14 +28,15 @@ nav a:hover{background:#374151}
 .fg{margin-bottom:12px}
 .fg label{font-size:10px;font-weight:700;color:#6b7a99;display:block;margin-bottom:4px}
 .sc-wrap{position:relative}
-.sc-input{width:100%;padding:6px 24px 6px 8px;border:1px solid #dde3f0;border-radius:6px;font-size:12px;outline:none}
+.sc-input{width:100%;padding:6px 24px 6px 8px;border:1px solid #dde3f0;border-radius:6px;font-size:12px;outline:none;cursor:pointer;background:#fff}
 .sc-input:focus{border-color:#84cc16}
 .sc-arrow{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:#6b7a99;pointer-events:none}
-.sc-dropdown{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #84cc16;border-radius:6px;max-height:160px;overflow-y:auto;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.sc-dropdown{display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;background:#fff;border:1px solid #84cc16;border-radius:6px;max-height:180px;overflow-y:auto;z-index:300;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 .sc-wrap.open .sc-dropdown{display:block}
-.sc-opt{padding:6px 10px;font-size:12px;cursor:pointer}
+.sc-opt{padding:7px 10px;font-size:12px;cursor:pointer;border-bottom:1px solid #f5f5f5}
+.sc-opt:last-child{border-bottom:none}
 .sc-opt:hover{background:#f0f2f7}
-.sc-opt.selected{background:#e8f5e0;font-weight:600}
+.sc-opt.selected{background:#e8f5e0;font-weight:600;color:#1a6b35}
 .btn-reset{width:100%;padding:6px;border:1px solid #dde3f0;border-radius:6px;background:transparent;font-size:12px;cursor:pointer;margin-top:8px;color:#6b7a99}
 .btn-reset:hover{background:#f0f2f7}
 .sidebar-stat{background:#f8faff;border-radius:8px;padding:10px;margin-top:16px;font-size:11px}
@@ -69,7 +70,7 @@ nav a:hover{background:#374151}
 .chart-hdr-title{font-weight:700;font-size:13px}
 .chart-hdr-sub{font-size:11px;color:#6b7a99}
 .chart-wrap{padding:16px;height:260px}
-.chart-wrap.tall{height:300px}
+.chart-wrap.tall{height:320px}
 .table-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}
 .table-hdr{padding:12px 20px;border-bottom:1px solid #dde3f0;display:flex;justify-content:space-between;align-items:center}
 .table-hdr-title{font-weight:700;font-size:13px}
@@ -145,7 +146,7 @@ nav a:hover{background:#374151}
     <div class="fg">
       <label>Gerente</label>
       <div class="sc-wrap" id="sc-ger">
-        <input class="sc-input" id="sc-ger-input" placeholder="Todos" onfocus="scOpen('ger')" oninput="scFilter('ger')">
+        <input class="sc-input" id="sc-ger-input" placeholder="Todos" readonly onclick="scToggle('ger')">
         <span class="sc-arrow">▼</span>
         <div class="sc-dropdown" id="sc-ger-dd"></div>
       </div>
@@ -154,7 +155,7 @@ nav a:hover{background:#374151}
     <div class="fg">
       <label>Planta</label>
       <div class="sc-wrap" id="sc-pla">
-        <input class="sc-input" id="sc-pla-input" placeholder="Todos" onfocus="scOpen('pla')" oninput="scFilter('pla')">
+        <input class="sc-input" id="sc-pla-input" placeholder="Todos" readonly onclick="scToggle('pla')">
         <span class="sc-arrow">▼</span>
         <div class="sc-dropdown" id="sc-pla-dd"></div>
       </div>
@@ -163,7 +164,7 @@ nav a:hover{background:#374151}
     <div class="fg">
       <label>Ordenar</label>
       <div class="sc-wrap" id="sc-ord">
-        <input class="sc-input" id="sc-ord-input" placeholder="Todos" onfocus="scOpen('ord')" oninput="scFilter('ord')">
+        <input class="sc-input" id="sc-ord-input" placeholder="Todos" readonly onclick="scToggle('ord')">
         <span class="sc-arrow">▼</span>
         <div class="sc-dropdown" id="sc-ord-dd"></div>
       </div>
@@ -171,7 +172,6 @@ nav a:hover{background:#374151}
 
     <button class="btn-reset" onclick="resetFilters()">Limpiar filtros</button>
 
-    <!-- Mini-stats sidebar -->
     <div class="sidebar-stat" id="sidebarStat" style="display:none">
       <div class="sidebar-stat-lbl">Cumplimiento (≤5 km)</div>
       <div class="sidebar-stat-val" id="sbPct">–</div>
@@ -197,7 +197,7 @@ nav a:hover{background:#374151}
       <div class="kpi-chip">
         <div class="kpi-chip-lbl">Total Operadores</div>
         <div class="kpi-chip-val" id="kpiTotal">–</div>
-        <div class="kpi-chip-sub" id="kpiTotalSub"></div>
+        <div class="kpi-chip-sub" id="kpiTotalSub">operadores únicos</div>
       </div>
       <div class="kpi-chip">
         <div class="kpi-chip-lbl">Dentro de Meta ≤5 km</div>
@@ -218,61 +218,51 @@ nav a:hover{background:#374151}
 
     <!-- CHARTS ROW 1 -->
     <div class="charts-row">
-      <!-- Distribución por rango -->
       <div class="chart-card">
         <div class="chart-hdr">
           <div>
             <div class="chart-hdr-title">Distribución por rango de distancia</div>
-            <div class="chart-hdr-sub">Número de operadores por tramo</div>
+            <div class="chart-hdr-sub">Número de operadores únicos por tramo</div>
           </div>
         </div>
         <div class="chart-wrap"><canvas id="chartRangos"></canvas></div>
       </div>
-      <!-- Cumplimiento por Gerente -->
       <div class="chart-card">
         <div class="chart-hdr">
           <div>
             <div class="chart-hdr-title">Cumplimiento por Gerente</div>
-            <div class="chart-hdr-sub">% operadores ≤5 km</div>
+            <div class="chart-hdr-sub">% operadores únicos ≤5 km</div>
           </div>
         </div>
         <div class="chart-wrap"><canvas id="chartGerente"></canvas></div>
       </div>
     </div>
 
-    <!-- CHARTS ROW 2 -->
-    <div class="charts-row">
-      <!-- Distancia promedio por planta -->
-      <div class="chart-card">
-        <div class="chart-hdr">
-          <div>
-            <div class="chart-hdr-title">Distancia promedio por Planta</div>
-            <div class="chart-hdr-sub">Km promedio · línea meta = 5 km</div>
-          </div>
+    <!-- CHART PLANTA FULL WIDTH -->
+    <div class="chart-card full">
+      <div class="chart-hdr">
+        <div>
+          <div class="chart-hdr-title">Distribución por Planta y rango de distancia</div>
+          <div class="chart-hdr-sub">Operadores únicos por planta · segmentado en 0–5 km · 5–10 km · >10 km</div>
         </div>
-        <div class="chart-wrap"><canvas id="chartPlanta"></canvas></div>
-      </div>
-      <!-- Scatter / distribución acumulada -->
-      <div class="chart-card">
-        <div class="chart-hdr">
-          <div>
-            <div class="chart-hdr-title">Acumulado por distancia</div>
-            <div class="chart-hdr-sub">Operadores acumulados según km</div>
-          </div>
+        <div style="display:flex;gap:12px;font-size:11px;align-items:center">
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#84cc16;border-radius:2px;display:inline-block"></span>0–5 km</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#fbbf24;border-radius:2px;display:inline-block"></span>5–10 km</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;background:#f87171;border-radius:2px;display:inline-block"></span>>10 km</span>
         </div>
-        <div class="chart-wrap"><canvas id="chartAcum"></canvas></div>
       </div>
+      <div class="chart-wrap tall"><canvas id="chartPlanta"></canvas></div>
     </div>
 
     <!-- TOP 20 -->
     <div class="section-divider">
       <div class="section-divider-title">🚨 Top 20 peores distancias</div>
-      <div class="section-divider-sub">Mayor distancia domicilio → planta</div>
+      <div class="section-divider-sub">Mayor distancia promedio domicilio → planta</div>
       <div class="section-divider-line"></div>
     </div>
     <div class="table-card">
       <div class="table-hdr">
-        <div class="table-hdr-title">Operadores con mayor km</div>
+        <div class="table-hdr-title">Operadores con mayor km promedio</div>
         <span class="table-count" id="cntTop">–</span>
       </div>
       <div class="table-scroll">
@@ -283,7 +273,7 @@ nav a:hover{background:#374151}
               <th onclick="sortTable('nombre')">Operador</th>
               <th onclick="sortTable('planta')">Planta</th>
               <th onclick="sortTable('gerente')">Gerente</th>
-              <th onclick="sortTable('ordenar')">Ordenar</th>
+              <th onclick="sortTable('unidad')">Unidad</th>
               <th class="r" onclick="sortTable('dist')">Distance km</th>
               <th class="r">Barra</th>
               <th class="r">Estado</th>
@@ -301,7 +291,7 @@ nav a:hover{background:#374151}
     </div>
     <div class="table-card">
       <div class="table-hdr">
-        <div class="table-hdr-title">Detalle completo</div>
+        <div class="table-hdr-title">Detalle completo · promediado por operador</div>
         <span class="table-count" id="cntAll">–</span>
       </div>
       <div class="table-scroll">
@@ -311,7 +301,7 @@ nav a:hover{background:#374151}
               <th onclick="sortAll('nombre')">Operador</th>
               <th onclick="sortAll('planta')">Planta</th>
               <th onclick="sortAll('gerente')">Gerente</th>
-              <th onclick="sortAll('ordenar')">Ordenar</th>
+              <th onclick="sortAll('unidad')">Unidad</th>
               <th class="r" onclick="sortAll('dist')">Distance km</th>
               <th class="r">Estado</th>
             </tr>
@@ -323,7 +313,6 @@ nav a:hover{background:#374151}
   </main>
 </div>
 
-<!-- MODAL gerente -->
 <div class="modal-overlay" id="unitModal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <div class="modal-head">
@@ -335,30 +324,30 @@ nav a:hover{background:#374151}
 </div>
 
 <script>
-// ─── CONFIG ────────────────────────────────────────────────────────
 const SHEET_ID = '1PZENkl6lPro23DZA1-Q7T5wmvY15WbX0rSOZujm0ZhM';
 const SHEET_VA = 'VA';
 const META_KM  = 5;
 
-// ─── STATE ─────────────────────────────────────────────────────────
-let DATA = [];
+let DATA_RAW = [];   // filas crudas del CSV
+let DATA = [];       // operadores únicos promediados
 let SC_SEL = {ger:'', pla:'', ord:''};
 let SC_VALS = {ger:[], pla:[], ord:[]};
 let sortColTop = 'dist', sortDirTop = -1;
 let sortColAll = 'dist', sortDirAll = -1;
-let chartRangos=null, chartGerente=null, chartPlanta=null, chartAcum=null;
+let chartRangos=null, chartGerente=null, chartPlanta=null;
 
-// ─── UTILS ─────────────────────────────────────────────────────────
+// ─── UTILS ─────────────────────────────────────────────
 function numVal(v){ let n=parseFloat(String(v||'0').replace(/[,%\s]/g,'')); return isNaN(n)?0:n; }
 function fmtN(n,d=1){ return (n||0).toFixed(d); }
 function csvUrl(){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_VA)}`; }
+function cleanH(h){ return h.replace(/["\u00A0\uFEFF]/g,'').replace(/\s+/g,' ').trim().toLowerCase(); }
 
 function parseCSVLine(line){
   let cols=[], inQ=false, cur='';
   for(let c of line){
     if(c==='"'){ inQ=!inQ; }
     else if(c===',' && !inQ){ cols.push(cur.trim()); cur=''; }
-    else { cur+=c; }
+    else{ cur+=c; }
   }
   cols.push(cur.trim());
   return cols;
@@ -367,57 +356,83 @@ function parseCSVLine(line){
 function parseCSV(text){
   if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
   let lines=text.split(/\r?\n/).filter(l=>l.trim());
-  if(lines.length<2){ return; }
+  if(lines.length<2) return;
 
-  let rawHeaders = parseCSVLine(lines[0]);
-  let headers = rawHeaders.map(h=>h.replace(/["\uFEFF]/g,'').toLowerCase().trim());
+  let rawH = parseCSVLine(lines[0]);
+  let headers = rawH.map(h=>cleanH(h));
 
-  // Nombres exactos de la hoja VA (busqueda exacta primero, luego flexible)
+  // Detectar columnas por nombre exacto primero, luego flexible
   let idxDist   = headers.findIndex(h=>h==='distance km');
-  if(idxDist<0)   idxDist   = headers.findIndex(h=>h.includes('distance')||h.includes('distancia'));
+  if(idxDist<0)  idxDist  = headers.findIndex(h=>h.includes('distance')&&h.includes('km'));
+  if(idxDist<0)  idxDist  = headers.findIndex(h=>h.includes('distance'));
 
   let idxGer    = headers.findIndex(h=>h==='gerente');
-  if(idxGer<0)    idxGer    = headers.findIndex(h=>h.includes('gerente'));
+  if(idxGer<0)   idxGer   = headers.findIndex(h=>h.includes('gerente'));
 
   let idxPla    = headers.findIndex(h=>h==='planta');
-  if(idxPla<0)    idxPla    = headers.findIndex(h=>h==='plant');
+  if(idxPla<0)   idxPla   = headers.findIndex(h=>h==='plant');
 
-  // Ordenar exacto (evitar que atrape "task order")
   let idxOrd    = headers.findIndex(h=>h==='ordenar');
 
-  // Tour Driver Name para el operador
   let idxNombre = headers.findIndex(h=>h==='tour driver name');
   if(idxNombre<0) idxNombre = headers.findIndex(h=>h.includes('driver name'));
   if(idxNombre<0) idxNombre = headers.findIndex(h=>h.includes('nombre')||h.includes('operador'));
   if(idxNombre<0) idxNombre = 0;
 
-  console.log('Indices detectados:', {idxDist, idxGer, idxPla, idxOrd, idxNombre});
+  let idxUnidad = headers.findIndex(h=>h==='unidad');
+  if(idxUnidad<0) idxUnidad = headers.findIndex(h=>h==='tour unit id');
+  if(idxUnidad<0) idxUnidad = headers.findIndex(h=>h.includes('unit'));
 
-  DATA=[];
+  console.log('Indices:', {idxDist,idxGer,idxPla,idxOrd,idxNombre,idxUnidad});
+
+  DATA_RAW=[];
   for(let i=1;i<lines.length;i++){
     let cols=parseCSVLine(lines[i]);
     if(cols.length<2) continue;
-    let dist=idxDist>=0?numVal(cols[idxDist]):0;
-    DATA.push({
-      nombre : cols[idxNombre]||`Fila ${i}`,
-      dist   : dist,
-      gerente: idxGer>=0?(cols[idxGer]||'Sin gerente'):'Sin gerente',
-      planta : idxPla>=0?(cols[idxPla]||'Sin planta'):'Sin planta',
-      ordenar: idxOrd>=0?(cols[idxOrd]||'–'):'–',
-      _raw   : cols
+    let nombre=(cols[idxNombre]||'').trim();
+    if(!nombre) continue;
+    DATA_RAW.push({
+      nombre,
+      dist   : idxDist>=0  ? numVal(cols[idxDist])  : 0,
+      gerente: idxGer>=0   ? (cols[idxGer]||'Sin gerente').trim()  : 'Sin gerente',
+      planta : idxPla>=0   ? (cols[idxPla]||'Sin planta').trim()   : 'Sin planta',
+      ordenar: idxOrd>=0   ? (cols[idxOrd]||'–').trim()            : '–',
+      unidad : idxUnidad>=0? (cols[idxUnidad]||'–').trim()         : '–',
     });
   }
 
-  // exponer headers detectados para debug
-  window._headers = headers;
-  window._idxMap  = {idxNombre,idxDist,idxGer,idxPla,idxOrd};
+  // ── PROMEDIAR por nombre de operador ──────────────────
+  // Agrupa todas las filas del mismo nombre y promedia dist
+  // Toma gerente/planta/ordenar/unidad del primer registro
+  let mapa = new Map();
+  DATA_RAW.forEach(r=>{
+    let key = r.nombre.toLowerCase();
+    if(!mapa.has(key)){
+      mapa.set(key,{...r, _suma:r.dist, _cnt:1});
+    } else {
+      let e=mapa.get(key);
+      e._suma+=r.dist;
+      e._cnt++;
+    }
+  });
+  DATA=[];
+  mapa.forEach(e=>{
+    DATA.push({
+      nombre : e.nombre,
+      dist   : e._suma/e._cnt,
+      gerente: e.gerente,
+      planta : e.planta,
+      ordenar: e.ordenar,
+      unidad : e.unidad,
+    });
+  });
 }
 
-// ─── FILTERS ───────────────────────────────────────────────────────
+// ─── FILTROS ───────────────────────────────────────────
 function filteredData(){
   return DATA.filter(r=>{
     if(SC_SEL.ger && r.gerente!==SC_SEL.ger) return false;
-    if(SC_SEL.pla && r.planta!==SC_SEL.pla) return false;
+    if(SC_SEL.pla && r.planta!==SC_SEL.pla)  return false;
     if(SC_SEL.ord && r.ordenar!==SC_SEL.ord) return false;
     return true;
   });
@@ -429,27 +444,38 @@ function cascadeFilters(){
   SC_VALS.pla=[...new Set(g.map(r=>r.planta).filter(v=>v&&v!=='Sin planta'))].sort();
   let p=SC_SEL.pla?g.filter(r=>r.planta===SC_SEL.pla):g;
   SC_VALS.ord=[...new Set(p.map(r=>r.ordenar).filter(v=>v&&v!=='–'))].sort();
-  ['ger','pla','ord'].forEach(k=>{ if(SC_SEL[k] && !SC_VALS[k].includes(SC_SEL[k])) SC_SEL[k]=''; });
+  ['ger','pla','ord'].forEach(k=>{ if(SC_SEL[k]&&!SC_VALS[k].includes(SC_SEL[k])) SC_SEL[k]=''; });
 }
 
-// ─── SEARCHABLE COMBOS ─────────────────────────────────────────────
-function scOpen(k){ document.querySelectorAll('.sc-wrap').forEach(w=>w.classList.remove('open')); document.getElementById(`sc-${k}`).classList.add('open'); scRenderDD(k); }
-function scFilter(k){ if(SC_SEL[k]!==''){ SC_SEL[k]=''; cascadeFilters(); draw(); } document.getElementById(`sc-${k}`).classList.add('open'); scRenderDD(k); }
+// ─── COMBOS (click para abrir/cerrar) ─────────────────
+function scToggle(k){
+  let isOpen = document.getElementById(`sc-${k}`).classList.contains('open');
+  document.querySelectorAll('.sc-wrap').forEach(w=>w.classList.remove('open'));
+  if(!isOpen){ document.getElementById(`sc-${k}`).classList.add('open'); scRenderDD(k); }
+}
 function scRenderDD(k){
   let dd=document.getElementById(`sc-${k}-dd`);
-  let q=document.getElementById(`sc-${k}-input`).value.toLowerCase();
-  let f=SC_VALS[k].filter(v=>v.toLowerCase().includes(q));
-  dd.innerHTML=`<div class="sc-opt${SC_SEL[k]===''?' selected':''}" onclick="scSelect('${k}','')">Todos</div>`
-    +f.map(v=>`<div class="sc-opt${SC_SEL[k]===v?' selected':''}" onclick="scSelect('${k}',${JSON.stringify(v)})">${v}</div>`).join('');
+  let opts=[{v:'',lbl:'Todos'},...SC_VALS[k].map(v=>({v,lbl:v}))];
+  dd.innerHTML=opts.map(o=>`<div class="sc-opt${SC_SEL[k]===o.v?' selected':''}" onclick="scSelect('${k}',${JSON.stringify(o.v)})">${o.lbl}</div>`).join('');
 }
-function scSelect(k,v){ SC_SEL[k]=v; document.getElementById(`sc-${k}-input`).value=v; document.getElementById(`sc-${k}`).classList.remove('open'); cascadeFilters(); draw(); }
-function resetFilters(){ Object.keys(SC_SEL).forEach(k=>{ SC_SEL[k]=''; document.getElementById(`sc-${k}-input`).value=''; }); cascadeFilters(); draw(); }
+function scSelect(k,v){
+  SC_SEL[k]=v;
+  document.getElementById(`sc-${k}-input`).value=v||'';
+  document.getElementById(`sc-${k}-input`).placeholder=v?'':' Todos';
+  document.getElementById(`sc-${k}`).classList.remove('open');
+  cascadeFilters();
+  draw();
+}
+function resetFilters(){
+  Object.keys(SC_SEL).forEach(k=>{ SC_SEL[k]=''; document.getElementById(`sc-${k}-input`).value=''; document.getElementById(`sc-${k}-input`).placeholder='Todos'; });
+  cascadeFilters(); draw();
+}
 document.addEventListener('click',e=>{
   if(!e.target.closest('.sc-wrap')) document.querySelectorAll('.sc-wrap').forEach(w=>w.classList.remove('open'));
   if(!e.target.closest('.dropdown')) document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));
 });
 
-// ─── KPIs ──────────────────────────────────────────────────────────
+// ─── KPIs ──────────────────────────────────────────────
 function drawKPIs(rows){
   let total=rows.length;
   let ok=rows.filter(r=>r.dist<=META_KM).length;
@@ -458,70 +484,68 @@ function drawKPIs(rows){
   let pct=total?ok/total*100:0;
 
   document.getElementById('kpiTotal').textContent=total.toLocaleString('es-MX');
-  document.getElementById('kpiTotalSub').textContent=SC_SEL.ger||SC_SEL.pla?'filtrado':'total registros';
+  document.getElementById('kpiTotalSub').textContent='operadores únicos';
   document.getElementById('kpiOk').textContent=ok.toLocaleString('es-MX');
-  document.getElementById('kpiOkSub').textContent=pct.toFixed(1)+'% de cumplimiento';
+  document.getElementById('kpiOkSub').textContent=pct.toFixed(1)+'% cumplimiento';
   document.getElementById('kpiFuera').textContent=fuera.toLocaleString('es-MX');
   document.getElementById('kpiFueraSub').textContent=(100-pct).toFixed(1)+'% incumplen meta';
   document.getElementById('kpiProm').textContent=fmtN(prom);
-  document.getElementById('kpiPromSub').textContent=`km promedio · meta: ${META_KM} km`;
+  document.getElementById('kpiPromSub').textContent='km promedio · meta: '+META_KM+' km';
 
-  // sidebar stat
   let sbEl=document.getElementById('sidebarStat');
   sbEl.style.display='block';
   document.getElementById('sbPct').textContent=pct.toFixed(1)+'%';
-  document.getElementById('sbPctSub').textContent=`${ok} de ${total} operadores`;
+  document.getElementById('sbPctSub').textContent=ok+' de '+total+' operadores';
   let bar=document.getElementById('sbBar');
   bar.style.width=pct+'%';
   bar.style.background=pct>=80?'#84cc16':pct>=60?'#fbbf24':'#f87171';
 }
 
-// ─── CHART: RANGOS ─────────────────────────────────────────────────
+// ─── CHART RANGOS ──────────────────────────────────────
 function drawChartRangos(rows){
-  let ranges=[{lbl:'0–2 km',min:0,max:2,col:'#84cc16'},{lbl:'2–5 km',min:2,max:5,col:'#4ade80'},
-              {lbl:'5–10 km',min:5,max:10,col:'#fbbf24'},{lbl:'10–20 km',min:10,max:20,col:'#f97316'},{lbl:'>20 km',min:20,max:Infinity,col:'#f87171'}];
-  let counts=ranges.map(r=>rows.filter(d=>d.dist>=r.min && d.dist<r.max).length);
+  let ranges=[
+    {lbl:'0–2 km',min:0,max:2,col:'#84cc16'},
+    {lbl:'2–5 km',min:2,max:5,col:'#4ade80'},
+    {lbl:'5–10 km',min:5,max:10,col:'#fbbf24'},
+    {lbl:'10–20 km',min:10,max:20,col:'#f97316'},
+    {lbl:'>20 km',min:20,max:Infinity,col:'#f87171'}
+  ];
+  let counts=ranges.map(r=>rows.filter(d=>d.dist>=r.min&&d.dist<r.max).length);
   let ctx=document.getElementById('chartRangos').getContext('2d');
   if(chartRangos) chartRangos.destroy();
   chartRangos=new Chart(ctx,{
     type:'bar',
     data:{
       labels:ranges.map(r=>r.lbl),
-      datasets:[{
-        label:'Operadores',
-        data:counts,
-        backgroundColor:ranges.map(r=>r.col),
-        borderRadius:6
-      }]
+      datasets:[{label:'Operadores',data:counts,backgroundColor:ranges.map(r=>r.col),borderRadius:6}]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{
-        legend:{display:false},
-        tooltip:{callbacks:{label:c=>`${c.raw} operadores`}},
-        annotation:{annotations:{metaLine:{type:'line',xMin:-0.5,xMax:1.5,borderColor:'transparent'}}}
-      },
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw} operadores`}}},
       scales:{
         x:{grid:{display:false},ticks:{font:{size:11}}},
-        y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'#f0f2f7'},title:{display:true,text:'Operadores',font:{size:11}}}
+        y:{beginAtZero:true,grid:{color:'#f0f2f7'},ticks:{font:{size:11}},title:{display:true,text:'Operadores',font:{size:11}}}
       }
     }
   });
 }
 
-// ─── CHART: GERENTE ────────────────────────────────────────────────
+// ─── CHART GERENTE ─────────────────────────────────────
 function drawChartGerente(rows){
   let gerMap=new Map();
-  rows.forEach(r=>{ if(!gerMap.has(r.gerente)) gerMap.set(r.gerente,{ok:0,total:0}); let g=gerMap.get(r.gerente); g.total++; if(r.dist<=META_KM) g.ok++; });
+  rows.forEach(r=>{
+    if(!gerMap.has(r.gerente)) gerMap.set(r.gerente,{ok:0,total:0});
+    let g=gerMap.get(r.gerente); g.total++;
+    if(r.dist<=META_KM) g.ok++;
+  });
   let gers=[...gerMap.entries()].sort((a,b)=>b[1].ok/b[1].total-a[1].ok/a[1].total);
-  let labels=gers.map(g=>g[0]);
   let pcts=gers.map(g=>g[1].total?g[1].ok/g[1].total*100:0);
   let ctx=document.getElementById('chartGerente').getContext('2d');
   if(chartGerente) chartGerente.destroy();
   chartGerente=new Chart(ctx,{
     type:'bar',
     data:{
-      labels:labels,
+      labels:gers.map(g=>g[0]),
       datasets:[{
         label:'% cumplimiento',
         data:pcts,
@@ -530,12 +554,8 @@ function drawChartGerente(rows){
       }]
     },
     options:{
-      indexAxis:'y',
-      responsive:true,maintainAspectRatio:false,
-      plugins:{
-        legend:{display:false},
-        tooltip:{callbacks:{label:c=>`${c.raw.toFixed(1)}% en meta`}}
-      },
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.toFixed(1)}% en meta`}}},
       scales:{
         x:{min:0,max:100,grid:{color:'#f0f2f7'},ticks:{callback:v=>v+'%',font:{size:11}}},
         y:{grid:{display:false},ticks:{font:{size:11}}}
@@ -544,98 +564,49 @@ function drawChartGerente(rows){
   });
 }
 
-// ─── CHART: PLANTA ─────────────────────────────────────────────────
+// ─── CHART PLANTA agrupado por rangos ──────────────────
 function drawChartPlanta(rows){
+  // Obtener plantas únicas ordenadas por total desc
   let plaMap=new Map();
-  rows.forEach(r=>{ if(!plaMap.has(r.planta)) plaMap.set(r.planta,{sum:0,cnt:0}); let p=plaMap.get(r.planta); p.sum+=r.dist; p.cnt++; });
-  let plas=[...plaMap.entries()].map(([k,v])=>({name:k,prom:v.cnt?v.sum/v.cnt:0})).sort((a,b)=>b.prom-a.prom);
+  rows.forEach(r=>{
+    if(!plaMap.has(r.planta)) plaMap.set(r.planta,{r0:0,r1:0,r2:0});
+    let p=plaMap.get(r.planta);
+    if(r.dist<=5)       p.r0++;
+    else if(r.dist<=10) p.r1++;
+    else                p.r2++;
+  });
+  let plas=[...plaMap.entries()]
+    .map(([name,v])=>({name,r0:v.r0,r1:v.r1,r2:v.r2,total:v.r0+v.r1+v.r2}))
+    .sort((a,b)=>b.total-a.total);
+
   let ctx=document.getElementById('chartPlanta').getContext('2d');
   if(chartPlanta) chartPlanta.destroy();
   chartPlanta=new Chart(ctx,{
     type:'bar',
     data:{
       labels:plas.map(p=>p.name),
-      datasets:[{
-        label:'Km promedio',
-        data:plas.map(p=>p.prom),
-        backgroundColor:plas.map(p=>p.prom<=META_KM?'#84cc16':'#f87171'),
-        borderRadius:6
-      }]
+      datasets:[
+        {label:'0–5 km',  data:plas.map(p=>p.r0),backgroundColor:'#84cc16',borderRadius:4,stack:'s'},
+        {label:'5–10 km', data:plas.map(p=>p.r1),backgroundColor:'#fbbf24',borderRadius:4,stack:'s'},
+        {label:'>10 km',  data:plas.map(p=>p.r2),backgroundColor:'#f87171',borderRadius:4,stack:'s'},
+      ]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
-        annotation:{},
-        tooltip:{callbacks:{label:c=>`${c.raw.toFixed(2)} km promedio`}}
+        tooltip:{
+          mode:'index',intersect:false,
+          callbacks:{
+            title:items=>items[0].label,
+            label:c=>`${c.dataset.label}: ${c.raw} ops`
+          }
+        }
       },
       scales:{
         x:{grid:{display:false},ticks:{font:{size:11}}},
         y:{
-          beginAtZero:true,
-          grid:{color:'#f0f2f7'},
-          title:{display:true,text:'km',font:{size:11}},
-          ticks:{font:{size:11}}
-        }
-      },
-      plugins:{
-        annotation:{
-          annotations:{
-            metaLine:{
-              type:'line',
-              yMin:META_KM,yMax:META_KM,
-              borderColor:'#1f2937',borderWidth:2,borderDash:[5,5],
-              label:{content:'Meta 5 km',enabled:true,position:'end',font:{size:10}}
-            }
-          }
-        }
-      }
-    }
-  });
-  // dibujar línea de meta manualmente vía afterDraw
-  chartPlanta.options.plugins.afterDraw=()=>{};
-}
-
-// ─── CHART: ACUMULADO ──────────────────────────────────────────────
-function drawChartAcum(rows){
-  let sorted=[...rows].sort((a,b)=>a.dist-b.dist);
-  let maxKm=Math.min(Math.ceil((sorted[sorted.length-1]?.dist||50)/5)*5,80);
-  let step=1; let buckets=[];
-  for(let km=0;km<=maxKm;km+=step){
-    buckets.push({km, cnt:sorted.filter(r=>r.dist<=km).length});
-  }
-  let ctx=document.getElementById('chartAcum').getContext('2d');
-  if(chartAcum) chartAcum.destroy();
-  chartAcum=new Chart(ctx,{
-    type:'line',
-    data:{
-      labels:buckets.map(b=>b.km),
-      datasets:[{
-        label:'Operadores acumulados',
-        data:buckets.map(b=>b.cnt),
-        borderColor:'#84cc16',
-        backgroundColor:'rgba(132,204,22,.1)',
-        fill:true,
-        tension:0.3,
-        pointRadius:0,
-        pointHoverRadius:4,
-        borderWidth:2
-      }]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{
-        legend:{display:false},
-        tooltip:{mode:'index',intersect:false,callbacks:{label:c=>`${c.raw} operadores ≤${c.label} km`}}
-      },
-      scales:{
-        x:{
-          grid:{display:false},
-          title:{display:true,text:'km',font:{size:11}},
-          ticks:{font:{size:11},maxTicksLimit:12}
-        },
-        y:{
-          beginAtZero:true,
+          stacked:true,beginAtZero:true,
           grid:{color:'#f0f2f7'},
           title:{display:true,text:'Operadores',font:{size:11}},
           ticks:{font:{size:11}}
@@ -645,7 +616,7 @@ function drawChartAcum(rows){
   });
 }
 
-// ─── TOP 20 ────────────────────────────────────────────────────────
+// ─── TOP 20 ────────────────────────────────────────────
 function drawTop20(rows){
   let top=[...rows].sort((a,b)=>b.dist-a.dist).slice(0,20);
   document.getElementById('cntTop').textContent=`Top ${top.length}`;
@@ -662,27 +633,24 @@ function drawTop20(rows){
       <td>${r.nombre}</td>
       <td>${r.planta}</td>
       <td>${r.gerente}</td>
-      <td>${r.ordenar}</td>
+      <td>${r.unidad}</td>
       <td class="r"><strong>${fmtN(r.dist,2)}</strong></td>
-      <td style="min-width:80px">
-        <div class="dist-bar-wrap">
-          <div class="dist-bar-bg"><div class="dist-bar-fill" style="width:${barPct}%;background:${barCol}"></div></div>
-        </div>
-      </td>
+      <td style="min-width:80px"><div class="dist-bar-wrap"><div class="dist-bar-bg"><div class="dist-bar-fill" style="width:${barPct}%;background:${barCol}"></div></div></div></td>
       <td class="r"><span class="pill ${cls}">${r.dist<=META_KM?'OK':r.dist<=10?'Atención':'Crítico'}</span></td>
     </tr>`;
   }).join('');
 }
 
-// ─── TABLA COMPLETA ────────────────────────────────────────────────
+// ─── TABLA COMPLETA ────────────────────────────────────
 let _allSorted=[];
 function drawAll(rows){
   _allSorted=[...rows];
-  if(sortColAll==='dist') _allSorted.sort((a,b)=>sortDirAll*(b.dist-a.dist));
-  else if(sortColAll==='nombre') _allSorted.sort((a,b)=>sortDirAll*a.nombre.localeCompare(b.nombre));
-  else if(sortColAll==='planta') _allSorted.sort((a,b)=>sortDirAll*a.planta.localeCompare(b.planta));
-  else if(sortColAll==='gerente') _allSorted.sort((a,b)=>sortDirAll*a.gerente.localeCompare(b.gerente));
-  else if(sortColAll==='ordenar') _allSorted.sort((a,b)=>sortDirAll*a.ordenar.localeCompare(b.ordenar));
+  let d=sortDirAll;
+  if(sortColAll==='dist')    _allSorted.sort((a,b)=>d*(b.dist-a.dist));
+  else if(sortColAll==='nombre')  _allSorted.sort((a,b)=>d*a.nombre.localeCompare(b.nombre));
+  else if(sortColAll==='planta')  _allSorted.sort((a,b)=>d*a.planta.localeCompare(b.planta));
+  else if(sortColAll==='gerente') _allSorted.sort((a,b)=>d*a.gerente.localeCompare(b.gerente));
+  else if(sortColAll==='unidad')  _allSorted.sort((a,b)=>d*a.unidad.localeCompare(b.unidad));
 
   document.getElementById('cntAll').textContent=_allSorted.length+' operadores';
   let tbody=document.getElementById('allTbody');
@@ -693,45 +661,31 @@ function drawAll(rows){
       <td>${r.nombre}</td>
       <td>${r.planta}</td>
       <td>${r.gerente}</td>
-      <td>${r.ordenar}</td>
+      <td>${r.unidad}</td>
       <td class="r">${fmtN(r.dist,2)}</td>
       <td class="r"><span class="pill ${cls}">${r.dist<=META_KM?'OK':r.dist<=10?'Atención':'Crítico'}</span></td>
     </tr>`;
   }).join('');
 }
 
-function sortTable(col){ if(sortColTop===col) sortDirTop*=-1; else{ sortColTop=col; sortDirTop=-1; } draw(); }
-function sortAll(col){ if(sortColAll===col) sortDirAll*=-1; else{ sortColAll=col; sortDirAll=-1; } draw(); }
+function sortTable(col){ if(sortColTop===col) sortDirTop*=-1; else{ sortColTop=col; sortDirTop=-1; } drawTop20(filteredData()); }
+function sortAll(col){   if(sortColAll===col)  sortDirAll*=-1;  else{ sortColAll=col;  sortDirAll=-1;  } drawAll(filteredData());  }
 
-// ─── MODAL por gerente ─────────────────────────────────────────────
-function openModal(gerente){
-  let rows=DATA.filter(r=>r.gerente===gerente).sort((a,b)=>b.dist-a.dist);
-  document.getElementById('modalTitle').textContent='Gerente: '+gerente;
-  let ok=rows.filter(r=>r.dist<=META_KM).length;
-  document.getElementById('modalBody').innerHTML=`
-    <p style="font-size:12px;color:#6b7a99;margin-bottom:12px">${rows.length} operadores · ${ok} en meta (${rows.length?Math.round(ok/rows.length*100):0}%)</p>
-    <table class="modal-table">
-      <thead><tr><th>Operador</th><th>Planta</th><th>Ordenar</th><th class="r">Distance km</th><th class="r">Estado</th></tr></thead>
-      <tbody>${rows.map(r=>{ let cls=r.dist<=META_KM?'green':r.dist<=10?'amber':'red'; return `<tr><td>${r.nombre}</td><td>${r.planta}</td><td>${r.ordenar}</td><td class="r">${fmtN(r.dist,2)}</td><td class="r"><span class="pill ${cls}">${r.dist<=META_KM?'OK':r.dist<=10?'Atención':'Crítico'}</span></td></tr>`; }).join('')}</tbody>
-    </table>`;
-  document.getElementById('unitModal').classList.add('open');
-}
 function closeModal(){ document.getElementById('unitModal').classList.remove('open'); }
 function toggleDropdown(id){ document.getElementById(id).classList.toggle('open'); }
 
-// ─── DRAW ALL ──────────────────────────────────────────────────────
+// ─── DRAW ──────────────────────────────────────────────
 function draw(){
   let rows=filteredData();
   drawKPIs(rows);
   drawChartRangos(rows);
   drawChartGerente(rows);
   drawChartPlanta(rows);
-  drawChartAcum(rows);
   drawTop20(rows);
   drawAll(rows);
 }
 
-// ─── INIT ──────────────────────────────────────────────────────────
+// ─── INIT ──────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',async()=>{
   document.getElementById('fechaActualizacion').innerHTML='📅 '+new Date().toLocaleDateString('es-MX');
   let ov=document.getElementById('loadingOverlay');

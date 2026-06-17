@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script>if(!sessionStorage.getItem("trx_auth"))location.replace("https://lipusaltillo.github.io/Logistica/index.html");</script>
+<script>if(!sessionStorage.getItem("trx_auth"))location.replace("index.html");</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Distancia VA | Traxión</title>
@@ -10,17 +10,10 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#f0f2f7;font-family:'Inter',sans-serif}
-nav{background:#1f2937;padding:12px 24px;display:flex;gap:20px;align-items:center}
-nav a{color:#e5e7eb;text-decoration:none;font-weight:500;padding:6px 12px;border-radius:6px}
-nav a:first-child{color:#84cc16;font-weight:700}
-nav a:hover{background:#374151}
-.dd-nav{position:relative;display:inline-block}
-.dd-nav-btn{color:#e5e7eb;font-weight:500;padding:6px 12px;border-radius:6px;cursor:pointer;background:transparent;border:none;font-size:14px}
-.dd-nav-btn:hover{background:#374151}
-.dd-nav-menu{display:none;position:absolute;top:100%;left:0;background:#374151;min-width:180px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:999}
-.dd-nav.open .dd-nav-menu{display:block}
-.dd-nav-menu a{display:block;padding:10px 16px;color:#e5e7eb;text-decoration:none}
-.dd-nav-menu a.active{background:#84cc16;color:#1f2937}
+nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48px;gap:14px;position:sticky;top:0;z-index:2000;box-shadow:0 2px 8px rgba(0,0,0,.3);flex-shrink:0;font-family:'Inter',sans-serif;}
+.nav-logo{color:#84cc16;font-weight:800;font-size:16px;text-decoration:none;}
+.nav-sep{color:#4b5563;font-size:14px;font-weight:300;}
+.nav-page{color:#e5e7eb;font-size:13px;font-weight:600;}
 .layout{display:flex}
 .sidebar{width:220px;background:#fff;border-right:1px solid #dde3f0;padding:16px;height:calc(100vh - 50px);position:sticky;top:50px;overflow-y:auto;flex-shrink:0}
 .sb-title{font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7a99;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
@@ -108,19 +101,9 @@ nav a:hover{background:#374151}
 <body>
 
 <nav>
-  <a href="https://lipusaltillo.github.io/Logistica/index.html">TRAXIÓN</a>
-  <div class="dd-nav" id="ddNav">
-    <button class="dd-nav-btn" onclick="document.getElementById('ddNav').classList.toggle('open')">Logística ▼</button>
-    <div class="dd-nav-menu">
-      <a href="https://lipusaltillo.github.io/Logistica/index.html">Home</a>
-      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_NS.html">Nivel de Servicio</a>
-      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_KMS.html">Kilómetros</a>
-      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_VA.html" class="active">Distancia VA</a>
-      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_Flota.html">Flota</a>
-      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_Ralenti.html">Ralentí</a>
-      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_NS_Saltillo.html">NS Saltillo</a>
-    </div>
-  </div>
+  <a class="nav-logo" href="index.html">TRAXIÓN</a>
+  <span class="nav-sep">|</span>
+  <span class="nav-page">Distancia VA</span>
 </nav>
 
 <div class="loading-overlay" id="loadingOverlay">

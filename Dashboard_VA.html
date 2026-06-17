@@ -10,10 +10,17 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#f0f2f7;font-family:'Inter',sans-serif}
-nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48px;gap:14px;position:sticky;top:0;z-index:2000;box-shadow:0 2px 8px rgba(0,0,0,.3);flex-shrink:0;font-family:'Inter',sans-serif;}
-.nav-logo{color:#84cc16;font-weight:800;font-size:16px;text-decoration:none;}
-.nav-sep{color:#4b5563;font-size:14px;font-weight:300;}
-.nav-page{color:#e5e7eb;font-size:13px;font-weight:600;}
+nav{background:#1f2937;padding:12px 24px;display:flex;gap:20px;align-items:center}
+nav a{color:#e5e7eb;text-decoration:none;font-weight:500;padding:6px 12px;border-radius:6px}
+nav a:first-child{color:#84cc16;font-weight:700}
+nav a:hover{background:#374151}
+.dd-nav{position:relative;display:inline-block}
+.dd-nav-btn{color:#e5e7eb;font-weight:500;padding:6px 12px;border-radius:6px;cursor:pointer;background:transparent;border:none;font-size:14px}
+.dd-nav-btn:hover{background:#374151}
+.dd-nav-menu{display:none;position:absolute;top:100%;left:0;background:#374151;min-width:180px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:999}
+.dd-nav.open .dd-nav-menu{display:block}
+.dd-nav-menu a{display:block;padding:10px 16px;color:#e5e7eb;text-decoration:none}
+.dd-nav-menu a.active{background:#84cc16;color:#1f2937}
 .layout{display:flex}
 .sidebar{width:220px;background:#fff;border-right:1px solid #dde3f0;padding:16px;height:calc(100vh - 50px);position:sticky;top:50px;overflow-y:auto;flex-shrink:0}
 .sb-title{font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7a99;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
@@ -101,9 +108,19 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
 <body>
 
 <nav>
-  <a class="nav-logo" href="index.html">TRAXIÓN</a>
-  <span class="nav-sep">|</span>
-  <span class="nav-page">Distancia VA</span>
+  <a href="https://lipusaltillo.github.io/Logistica/index.html">TRAXIÓN</a>
+  <div class="dd-nav" id="ddNav">
+    <button class="dd-nav-btn" onclick="document.getElementById('ddNav').classList.toggle('open')">Logística ▼</button>
+    <div class="dd-nav-menu">
+      <a href="https://lipusaltillo.github.io/Logistica/index.html">Home</a>
+      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_NS.html">Nivel de Servicio</a>
+      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_KMS.html">Kilómetros</a>
+      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_VA.html" class="active">Distancia VA</a>
+      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_Flota.html">Flota</a>
+      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_Ralenti.html">Ralentí</a>
+      <a href="https://lipusaltillo.github.io/Logistica/Dashboard_NS_Saltillo.html">NS Saltillo</a>
+    </div>
+  </div>
 </nav>
 
 <div class="loading-overlay" id="loadingOverlay">
@@ -278,12 +295,12 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
           <thead>
             <tr>
               <th style="width:36px">#</th>
-              <th onclick="sortTop('nombre')">Operador ↕️</th>
-              <th onclick="sortTop('planta')">Planta ↕️</th>
-              <th onclick="sortTop('gerente')">Gerente ↕️</th>
-              <th onclick="sortTop('unidad')">Unidad ↕️</th>
-              <th onclick="sortTop('ruta')">Ruta ↕️</th>
-              <th class="r" onclick="sortTop('dist')">Dist. km ↕️</th>
+              <th onclick="sortTop('nombre')">Operador ↕</th>
+              <th onclick="sortTop('planta')">Planta ↕</th>
+              <th onclick="sortTop('gerente')">Gerente ↕</th>
+              <th onclick="sortTop('unidad')">Unidad ↕</th>
+              <th onclick="sortTop('ruta')">Ruta ↕</th>
+              <th class="r" onclick="sortTop('dist')">Dist. km ↕</th>
               <th class="r">Barra</th>
               <th class="r">Estado</th>
             </tr>
@@ -307,12 +324,12 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
         <table class="data-table">
           <thead>
             <tr>
-              <th onclick="sortAll('nombre')">Operador ↕️</th>
-              <th onclick="sortAll('planta')">Planta ↕️</th>
-              <th onclick="sortAll('gerente')">Gerente ↕️</th>
-              <th onclick="sortAll('unidad')">Unidad ↕️</th>
-              <th onclick="sortAll('ruta')">Ruta ↕️</th>
-              <th class="r" onclick="sortAll('dist')">Dist. km ↕️</th>
+              <th onclick="sortAll('nombre')">Operador ↕</th>
+              <th onclick="sortAll('planta')">Planta ↕</th>
+              <th onclick="sortAll('gerente')">Gerente ↕</th>
+              <th onclick="sortAll('unidad')">Unidad ↕</th>
+              <th onclick="sortAll('ruta')">Ruta ↕</th>
+              <th class="r" onclick="sortAll('dist')">Dist. km ↕</th>
               <th class="r">Estado</th>
             </tr>
           </thead>
@@ -430,9 +447,9 @@ function filteredOps(ops){
 function poblarSelects(){
   const fill=(id,vals,all)=>{
     let sel=$(id),cur=sel.value;
-    sel.innerHTML=<option value="">${all}</option>
+    sel.innerHTML=`<option value="">${all}</option>`
       +[...new Set(vals)].filter(v=>v&&v!=='–'&&v!=='Sin gerente'&&v!=='Sin planta').sort()
-        .map(v=><option value="${v.replace(/"/g,'&quot;')}">${v}</option>).join('');
+        .map(v=>`<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`).join('');
     if(cur) sel.value=cur;
   };
   fill('fSem',ROWS.map(r=>r.semana),'Todas');
@@ -546,8 +563,8 @@ function drawRangos(filas){
         legend:{display:false},
         tooltip:{mode:'index',intersect:false,callbacks:{
           title:i=>'Semana '+i[0].label,
-          label:c=>${c.dataset.label}: ${c.raw} ops,
-          footer:i=>Promedio: ${fmt(proms[i[0].dataIndex],1)} km
+          label:c=>`${c.dataset.label}: ${c.raw} ops`,
+          footer:i=>`Promedio: ${fmt(proms[i[0].dataIndex],1)} km`
         }}
       },
       scales:{
@@ -579,7 +596,7 @@ function drawGerente(ops){
     },
     options:{
       indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>${c.raw.toFixed(1)}% en meta}}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.toFixed(1)}% en meta`}}},
       scales:{
         x:{min:0,max:100,grid:{color:'#f0f2f7'},ticks:{callback:v=>v+'%',font:{size:11}}},
         y:{grid:{display:false},ticks:{font:{size:11}}}
@@ -635,8 +652,8 @@ function drawPlanta(ops){
         legend:{display:false},
         tooltip:{mode:'index',intersect:false,callbacks:{
           title:i=>i[0].label,
-          label:c=>${c.dataset.label}: ${c.raw} ops,
-          footer:i=>Promedio: ${fmt(plas[i[0].dataIndex].prom,1)} km
+          label:c=>`${c.dataset.label}: ${c.raw} ops`,
+          footer:i=>`Promedio: ${fmt(plas[i[0].dataIndex].prom,1)} km`
         }}
       },
       scales:{
@@ -710,8 +727,8 @@ function drawTendencia(filas){
           mode:'index',intersect:false,
           callbacks:{
             label:c=>c.datasetIndex===0
-              ?Promedio: ${fmt(c.raw,2)} km
-              :Tendencia: ${fmt(c.raw,2)} km
+              ?`Promedio: ${fmt(c.raw,2)} km`
+              :`Tendencia: ${fmt(c.raw,2)} km`
           }
         }
       },
@@ -780,7 +797,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   $('fechaBadge').innerHTML='📅 '+new Date().toLocaleDateString('es-MX');
   let ov=$('loadingOverlay');
   try{
-    let url=https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=VA;
+    let url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=VA`;
     let res=await fetch(url);
     if(!res.ok) throw new Error('HTTP '+res.status);
     let txt=await res.text();

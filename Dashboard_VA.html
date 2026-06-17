@@ -52,6 +52,7 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
 .kpi-chip-val.red{color:#f87171}
 .kpi-chip-val.amber{color:#fbbf24}
 .kpi-chip-sub{font-size:11px;opacity:.7;margin-top:6px}
+.kpi-chip-km{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.12);letter-spacing:.2px}
 .section-divider{display:flex;align-items:center;gap:12px;margin:4px 0}
 .section-divider-title{font-weight:700;font-size:13px;white-space:nowrap}
 .section-divider-sub{font-size:11px;color:#6b7a99;white-space:nowrap}
@@ -186,16 +187,19 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
         <div class="kpi-chip-lbl">Total Operadores</div>
         <div class="kpi-chip-val" id="kpiTotal">–</div>
         <div class="kpi-chip-sub">operadores únicos</div>
+        <div class="kpi-chip-km" id="kpiTotalKm">–</div>
       </div>
       <div class="kpi-chip">
         <div class="kpi-chip-lbl">Dentro de Meta</div>
         <div class="kpi-chip-val" id="kpiOk">–</div>
         <div class="kpi-chip-sub" id="kpiOkSub"></div>
+        <div class="kpi-chip-km" id="kpiOkKm">–</div>
       </div>
       <div class="kpi-chip">
         <div class="kpi-chip-lbl">Fuera de Meta</div>
         <div class="kpi-chip-val red" id="kpiFuera">–</div>
         <div class="kpi-chip-sub" id="kpiFueraSub"></div>
+        <div class="kpi-chip-km" id="kpiFueraKm">–</div>
       </div>
       <div class="kpi-chip">
         <div class="kpi-chip-lbl">Distancia Promedio</div>
@@ -473,11 +477,17 @@ function drawKPIs(ops){
   let total=ops.length,ok=ops.filter(r=>r.dist<=META).length;
   let fuera=total-ok,prom=total?ops.reduce((s,r)=>s+r.dist,0)/total:0;
   let pct=total?ok/total*100:0;
+  let sumTotal=ops.reduce((s,r)=>s+r.dist,0);
+  let sumOk=ops.filter(r=>r.dist<=META).reduce((s,r)=>s+r.dist,0);
+  let sumFuera=ops.filter(r=>r.dist>META).reduce((s,r)=>s+r.dist,0);
   $('kpiTotal').textContent=total.toLocaleString('es-MX');
+  $('kpiTotalKm').textContent='∑ '+sumTotal.toLocaleString('es-MX',{maximumFractionDigits:1})+' km totales';
   $('kpiOk').textContent=ok.toLocaleString('es-MX');
   $('kpiOkSub').textContent=pct.toFixed(1)+'% cumplimiento';
+  $('kpiOkKm').textContent='∑ '+sumOk.toLocaleString('es-MX',{maximumFractionDigits:1})+' km';
   $('kpiFuera').textContent=fuera.toLocaleString('es-MX');
   $('kpiFueraSub').textContent=(100-pct).toFixed(1)+'% incumplen';
+  $('kpiFueraKm').textContent='∑ '+sumFuera.toLocaleString('es-MX',{maximumFractionDigits:1})+' km';
   $('kpiProm').textContent=fmt(prom);
   $('kpiPromSub').textContent='km promedio · meta '+META+' km';
   $('sidebarStat').style.display='block';

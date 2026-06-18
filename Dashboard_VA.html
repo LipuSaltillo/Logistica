@@ -463,7 +463,7 @@ function aplicarFiltros(){
   let filas=filteredRows();
   OPERADORES=promediar(filas);
   let opsVis=filteredOps(OPERADORES);
-  drawKPIs(opsVis);
+  drawKPIs(opsVis, filas);
   drawRangos(filas);       // rangos usa filas crudas agrupadas por semana
   drawGerente(opsVis);
   drawPlanta(opsVis);
@@ -473,15 +473,18 @@ function aplicarFiltros(){
 }
 
 // ── KPIs ─────────────────────────────────────────────
-function drawKPIs(ops){
+function drawKPIs(ops, filas){
+  // conteos y promedio sobre operadores únicos (promediados)
   let total=ops.length,ok=ops.filter(r=>r.dist<=META).length;
   let fuera=total-ok,prom=total?ops.reduce((s,r)=>s+r.dist,0)/total:0;
   let pct=total?ok/total*100:0;
-  let sumTotal=ops.reduce((s,r)=>s+r.dist,0);
-  // km ahorrados: cuánto le falta a cada operador dentro de meta para llegar a la meta
-  let sumAhorro=ops.filter(r=>r.dist<=META).reduce((s,r)=>s+(META-r.dist),0);
-  // km desperdiciados: solo el excedente sobre la meta de cada operador fuera de meta
-  let sumExceso=ops.filter(r=>r.dist>META).reduce((s,r)=>s+(r.dist-META),0);
+  // sumas sobre filas crudas para acumular todas las semanas
+  let raw=filas||ops;
+  let sumTotal=raw.reduce((s,r)=>s+r.dist,0);
+  // km ahorrados: cuánto le falta a cada registro dentro de meta para llegar a la meta
+  let sumAhorro=raw.filter(r=>r.dist<=META).reduce((s,r)=>s+(META-r.dist),0);
+  // km excedentes: solo el excedente sobre la meta de cada registro fuera de meta
+  let sumExceso=raw.filter(r=>r.dist>META).reduce((s,r)=>s+(r.dist-META),0);
   $('kpiTotal').textContent=total.toLocaleString('es-MX');
   $('kpiTotalKm').textContent=sumTotal.toLocaleString('es-MX',{maximumFractionDigits:1})+' km totales';
   $('kpiOk').textContent=ok.toLocaleString('es-MX');

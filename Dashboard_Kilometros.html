@@ -83,16 +83,9 @@ nav a:hover{background:#374151}
 </head>
 <body>
 <nav>
-  <a href="#">TRAXIÓN</a>
-  <div class="dropdown" id="dd1">
-    <button class="dropdown-toggle" onclick="toggleDropdown('dd1')">Logística ▼</button>
-    <div class="dropdown-menu">
-      <a href="#">Nivel de Servicio</a>
-      <a href="#" class="active">Kilómetros</a>
-      <a href="#">Flota</a>
-      <a href="#">Ralentí</a>
-    </div>
-  </div>
+  <a href="index.html">TRAXIÓN</a>
+  <span style="color:#6b7280;font-weight:600;">|</span>
+  <span style="color:#e5e7eb;font-weight:600;">Kilómetros</span>
 </nav>
 <div class="loading-overlay" id="loadingOverlay"><div class="loading-box"><div class="loading-spinner"></div><div>Cargando datos...</div></div></div>
 <div class="layout">
@@ -123,7 +116,7 @@ nav a:hover{background:#374151}
 </div>
 <div class="modal-overlay" id="unitModal" onclick="if(event.target===this)closeModal()"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle"></h3><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body" id="modalBody"></div></div></div>
 <script>
-const SHEET_ID = '1qQV_wyKt0lyIFgRaeWx-kz-a8TbRMfOFDlEkFhLFM8I';
+const SHEET_ID = '1PZENkl6lPro23DZA1-Q7T5wmvY15WbX0rSOZujm0ZhM';
 const SHEET_KM = 'Kilometros';
 let DATA_UNIDAD = [], DATA_RANGOS = [], KM_PERMITIDO = 15000;
 let SC_SEL = {ger:'', jef:'', cli:'', car:''}, SC_VALS = {ger:[], jef:[], cli:[], car:[]};

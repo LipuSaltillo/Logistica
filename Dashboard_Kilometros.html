@@ -14,6 +14,13 @@ nav{background:#1f2937;padding:12px 24px;display:flex;gap:20px;align-items:cente
 nav a{color:#e5e7eb;text-decoration:none;font-weight:500;padding:6px 12px;border-radius:6px}
 nav a:first-child{color:#84cc16;font-weight:700}
 nav a:hover{background:#374151}
+.dropdown{position:relative;display:inline-block}
+.dropdown-toggle{color:#e5e7eb;font-weight:500;padding:6px 12px;border-radius:6px;cursor:pointer;background:transparent;border:none;font-size:14px}
+.dropdown-toggle:hover{background:#374151}
+.dropdown-menu{display:none;position:absolute;top:100%;left:0;background:#374151;min-width:180px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.dropdown.open .dropdown-menu{display:block}
+.dropdown-menu a{display:block;padding:10px 16px;color:#e5e7eb}
+.dropdown-menu a.active{background:#84cc16;color:#1f2937}
 .layout{display:flex}
 .sidebar{width:200px;background:#fff;border-right:1px solid #dde3f0;padding:16px;height:calc(100vh - 50px);position:sticky;top:50px;overflow-y:auto}
 .sb-title{font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7a99;margin-bottom:12px;display:flex;justify-content:space-between}
@@ -30,7 +37,7 @@ nav a:hover{background:#374151}
 .btn-reset{width:100%;padding:6px;border:1px solid #dde3f0;border-radius:6px;background:transparent;font-size:12px;cursor:pointer;margin-top:8px}
 .main{flex:1;padding:20px;display:flex;flex-direction:column;gap:20px}
 .loading-overlay{position:fixed;inset:0;background:#f0f2f7;display:flex;align-items:center;justify-content:center;z-index:1000}
-.loading-overlay.hidden{opacity:0;pointer-events:none;transition:opacity .4s}
+.loading-overlay.hidden{opacity:0;pointer-events:none}
 .loading-box{background:#fff;padding:32px;border-radius:16px;text-align:center}
 .loading-spinner{width:40px;height:40px;border:3px solid #dde3f0;border-top-color:#84cc16;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -40,19 +47,17 @@ nav a:hover{background:#374151}
 .kpi-chip-val{font-size:28px;font-weight:700;color:#84cc16}
 .kpi-chip-sub{font-size:11px;opacity:.7;margin-top:6px}
 .section-divider{display:flex;align-items:center;gap:12px;margin:8px 0}
-.section-divider-title{font-weight:700;white-space:nowrap}
+.section-divider-title{font-weight:700}
 .section-divider-line{flex:1;height:1px;background:#dde3f0}
 .table-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:hidden}
 .table-hdr{padding:12px 20px;border-bottom:1px solid #dde3f0;display:flex;justify-content:space-between;align-items:center}
-.table-hdr-title{font-weight:700;font-size:14px}
-.table-hdr-sub{font-size:11px;color:#6b7a99;margin-top:2px}
+.table-hdr-title{font-weight:700}
+.rangos-chart-wrap{height:320px;padding:16px}
 .data-table{width:100%;border-collapse:collapse}
-.data-table th{background:#222d42;color:#fff;padding:8px 12px;font-size:11px;text-align:left;cursor:pointer;user-select:none}
-.data-table th:hover{background:#2d3d57}
+.data-table th{background:#222d42;color:#fff;padding:8px 12px;font-size:11px;text-align:left;cursor:pointer}
 .data-table th.r{text-align:right}
 .data-table td{padding:8px 12px;font-size:13px;border-bottom:1px solid #f0f2f7}
 .data-table td.r{text-align:right}
-.data-table tr:hover td{background:#f9fafc}
 .table-scroll{overflow-x:auto}
 .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
 .pill.green{background:#e8f5e0;color:#2e7d32}
@@ -63,616 +68,224 @@ nav a:hover{background:#374151}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:1000}
 .modal-overlay.open{display:flex}
 .modal-box{background:#fff;border-radius:12px;width:90%;max-width:800px;max-height:80vh;overflow:hidden}
-.modal-head{padding:16px 20px;background:#222d42;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.modal-head{padding:16px 20px;background:#222d42;color:#fff;display:flex;justify-content:space-between}
 .modal-close{background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer}
 .modal-body{overflow-y:auto;padding:16px}
 .modal-table{width:100%;border-collapse:collapse}
-.modal-table th{background:#f0f2f7;padding:8px 12px;font-size:11px;text-align:left}
-.modal-table th.r{text-align:right}
+.modal-table th{background:#f0f2f7;padding:8px 12px;font-size:11px}
 .modal-table td{padding:8px 12px;font-size:12px;border-bottom:1px solid #eee}
-.modal-table td.r{text-align:right}
 .fecha-badge{background:#fff;border:1px solid #dde3f0;border-radius:20px;padding:4px 12px;font-size:12px}
 .kpi-header-row{display:flex;justify-content:space-between;align-items:center}
-.err{background:#ffebee;border-left:4px solid #c62828;padding:12px;border-radius:8px;margin-bottom:8px}
-.hidden{display:none!important}
-
-/* ── Productividad card ── */
-.prod-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:hidden}
-.prod-header{background:#1e3a2f;color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
-.prod-header-title{font-size:17px;font-weight:700}
-.prod-header-range{font-size:12px;opacity:.8}
-.prod-subline{font-size:11px;color:#6b7a99;padding:10px 20px 0}
-.prod-kpis{display:grid;grid-template-columns:repeat(4,1fr)}
-.prod-kpi{padding:16px 20px;border-right:1px solid #f0f2f7}
-.prod-kpi:last-child{border-right:none}
-.prod-kpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:#6b7a99;margin-bottom:6px;letter-spacing:.4px}
-.prod-kpi-val{font-size:26px;font-weight:700;color:#2e7d32}
-.prod-kpi-sub{font-size:11px;color:#6b7a99;margin-top:4px}
-.prod-chart-wrap{padding:16px 20px 20px}
-.prod-chart-title{font-size:13px;font-weight:700;color:#222d42;margin-bottom:10px}
-.prod-chart-canvas{height:260px}
+.err{background:#ffebee;border-left:4px solid #c62828;padding:12px;border-radius:8px;margin-bottom:16px;display:none}
+.err:not(.hidden){display:block}
+.hidden{display:none}
 </style>
 </head>
 <body>
 <nav>
-  <a href="index.html">TRAXIÓN</a>
-  <span style="color:#6b7280;font-weight:600;">|</span>
-  <span style="color:#e5e7eb;font-weight:600;">Kilómetros</span>
-</nav>
-
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-box">
-    <div class="loading-spinner"></div>
-    <div>Cargando datos...</div>
+  <a href="#">TRAXIÓN</a>
+  <div class="dropdown" id="dd1">
+    <button class="dropdown-toggle" onclick="toggleDropdown('dd1')">Logística ▼</button>
+    <div class="dropdown-menu">
+      <a href="#">Nivel de Servicio</a>
+      <a href="#" class="active">Kilómetros</a>
+      <a href="#">Flota</a>
+      <a href="#">Ralentí</a>
+    </div>
   </div>
-</div>
-
+</nav>
+<div class="loading-overlay" id="loadingOverlay"><div class="loading-box"><div class="loading-spinner"></div><div>Cargando datos...</div></div></div>
 <div class="layout">
   <aside class="sidebar">
-    <div class="sb-title">FILTROS <button style="background:none;border:none;cursor:pointer;font-size:14px;color:#6b7a99" onclick="resetFilters()">↺</button></div>
+    <div class="sb-title">FILTROS <button class="sb-reset" onclick="resetFilters()">↺</button></div>
     <div class="fg"><label>Gerente</label><div class="sc-wrap" id="sc-ger"><input class="sc-input" id="sc-ger-input" placeholder="Todos" onfocus="scOpen('ger')" oninput="scFilter('ger')"><span class="sc-arrow">▼</span><div class="sc-dropdown" id="sc-ger-dd"></div></div></div>
     <div class="fg"><label>Jefe</label><div class="sc-wrap" id="sc-jef"><input class="sc-input" id="sc-jef-input" placeholder="Todos" onfocus="scOpen('jef')" oninput="scFilter('jef')"><span class="sc-arrow">▼</span><div class="sc-dropdown" id="sc-jef-dd"></div></div></div>
     <div class="fg"><label>Cliente</label><div class="sc-wrap" id="sc-cli"><input class="sc-input" id="sc-cli-input" placeholder="Todos" onfocus="scOpen('cli')" oninput="scFilter('cli')"><span class="sc-arrow">▼</span><div class="sc-dropdown" id="sc-cli-dd"></div></div></div>
-    <div class="fg"><label>UDN</label><div class="sc-wrap" id="sc-car"><input class="sc-input" id="sc-car-input" placeholder="Todos" onfocus="scOpen('car')" oninput="scFilter('car')"><span class="sc-arrow">▼</span><div class="sc-dropdown" id="sc-car-dd"></div></div></div>
+    <div class="fg"><label>Unidad</label><div class="sc-wrap" id="sc-car"><input class="sc-input" id="sc-car-input" placeholder="Todos" onfocus="scOpen('car')" oninput="scFilter('car')"><span class="sc-arrow">▼</span><div class="sc-dropdown" id="sc-car-dd"></div></div></div>
     <button class="btn-reset" onclick="resetFilters()">Limpiar filtros</button>
   </aside>
-
   <main class="main">
     <div class="err hidden" id="errBanner">⚠️ <span id="errMsg"></span></div>
-    <div class="kpi-header-row">
-      <span style="font-weight:700;font-size:16px;">Kilómetros</span>
-      <div class="fecha-badge" id="fechaActualizacion">–</div>
-    </div>
-
-    <!-- KPIs principales -->
+    <div class="kpi-header-row"><span>Kilómetros</span><div class="fecha-badge" id="fechaActualizacion">–</div></div>
     <div class="kpi-section">
-      <div class="kpi-chip"><div class="kpi-chip-lbl">Km GPS Total</div><div class="kpi-chip-val" id="kpiKmGps">–</div><div class="kpi-chip-sub" id="kpiKmGpsSub"></div></div>
-      <div class="kpi-chip"><div class="kpi-chip-lbl">Km Servicio</div><div class="kpi-chip-val" id="kpiKmBus">–</div><div class="kpi-chip-sub" id="kpiKmBusSub"></div></div>
-      <div class="kpi-chip"><div class="kpi-chip-lbl">Km Ineficientes</div><div class="kpi-chip-val" id="kpiKmInef" style="color:#f87171">–</div><div class="kpi-chip-sub" id="kpiKmInefSub"></div></div>
-      <div class="kpi-chip"><div class="kpi-chip-lbl">% Ineficiencia</div><div class="kpi-chip-val" id="kpiDifVal">–</div><div class="kpi-chip-sub" id="kpiDifSub"></div></div>
+      <div class="kpi-chip"><div class="kpi-chip-lbl">Km GPS (Tlog)</div><div class="kpi-chip-val" id="kpiKmGps">–</div><div class="kpi-chip-sub" id="kpiKmGpsSub"></div></div>
+      <div class="kpi-chip"><div class="kpi-chip-lbl">Km Bustrax</div><div class="kpi-chip-val" id="kpiKmBus">–</div><div class="kpi-chip-sub" id="kpiKmBusSub"></div></div>
+      <div class="kpi-chip"><div class="kpi-chip-lbl">Km Ineficientes</div><div class="kpi-chip-val" id="kpiKmInef" style="color:#f87171">–</div><div class="kpi-chip-sub" id="kpiKmInefSub"></div><div class="kpi-chip-breakdown" id="kpiKmInefPct"></div></div>
+      <div class="kpi-chip"><div class="kpi-chip-lbl">Marginal vs Permitido</div><div class="kpi-chip-val" id="kpiDifVal">–</div><div class="kpi-chip-sub" id="kpiDifSub"></div><div class="kpi-chip-breakdown" id="kpiDifPct"></div></div>
     </div>
-
-    <!-- ══ PRODUCTIVIDAD ══ -->
-    <div class="section-divider"><div class="section-divider-title">Productividad de Kilómetros</div><div class="section-divider-line"></div></div>
-    <div class="prod-card">
-      <div class="prod-header">
-        <div class="prod-header-title">Productividad de Kilómetros</div>
-        <div class="prod-header-range" id="prodRange">–</div>
-      </div>
-      <div class="prod-subline" id="prodSubline">% de kilómetros productivos respecto al total recorrido</div>
-      <div class="prod-kpis">
-        <div class="prod-kpi"><div class="prod-kpi-lbl">Eficiencia Inicial</div><div class="prod-kpi-val" id="prodEfIni">–</div><div class="prod-kpi-sub" id="prodEfIniSub">–</div></div>
-        <div class="prod-kpi"><div class="prod-kpi-lbl">Eficiencia Actual</div><div class="prod-kpi-val" id="prodEfAct">–</div><div class="prod-kpi-sub" id="prodEfActSub">–</div></div>
-        <div class="prod-kpi"><div class="prod-kpi-lbl">Mejora Acumulada</div><div class="prod-kpi-val" id="prodMejAcum">–</div><div class="prod-kpi-sub" id="prodMejAcumSub">–</div></div>
-        <div class="prod-kpi"><div class="prod-kpi-lbl">Mejora Últimos 2 Meses</div><div class="prod-kpi-val" id="prodMej2m">–</div><div class="prod-kpi-sub" id="prodMej2mSub">–</div></div>
-      </div>
-      <div class="prod-chart-wrap">
-        <div class="prod-chart-title">Tendencia mensual de eficiencia</div>
-        <div class="prod-chart-canvas"><canvas id="prodChart"></canvas></div>
-      </div>
-    </div>
-
-    <!-- ══ KM POR CLIENTE ══ -->
+    <div class="section-divider"><div class="section-divider-title">Rangos de Operadores</div><div class="section-divider-sub">Distancia domicilio → punto de inicio</div><div class="section-divider-line"></div></div>
+    <div class="table-card"><div class="table-hdr"><div><div class="table-hdr-title">Evolución por semana · rangos de distancia</div><div class="table-hdr-sub">Barras agrupadas · objetivo: reducir barra roja (&gt;15 km)</div></div><span class="table-count" id="rangosTotal">–</span></div><div class="rangos-chart-wrap"><canvas id="rangosChart"></canvas></div></div>
     <div class="section-divider"><div class="section-divider-title">Km por Cliente</div><div class="section-divider-line"></div></div>
-    <div class="table-card">
-      <div class="table-hdr">
-        <div><div class="table-hdr-title">Resumen por cliente</div></div>
-        <span id="cntClientes" style="font-size:12px;color:#6b7a99">–</span>
-      </div>
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead><tr>
-            <th onclick="sortTable('cli','cliente')">UDN</th>
-            <th onclick="sortTable('cli','gerente')">Gerente</th>
-            <th onclick="sortTable('cli','jefe')">Jefe</th>
-            <th onclick="sortTable('cli','cliente')">Cliente</th>
-            <th class="r" onclick="sortTable('cli','kmTotal')">Km Total</th>
-            <th class="r" onclick="sortTable('cli','kmBus')">Viajes Bustrax</th>
-            <th class="r" onclick="sortTable('cli','kmInef')">Km Inef.</th>
-            <th class="r" onclick="sortTable('cli','pct')">%</th>
-          </tr></thead>
-          <tbody id="clientesTbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ══ KM POR DÍA ══ -->
-    <div class="section-divider"><div class="section-divider-title">Comportamiento Diario</div><div class="section-divider-line"></div></div>
-    <div class="table-card">
-      <div class="table-hdr">
-        <div><div class="table-hdr-title">Km por día</div><div class="table-hdr-sub">Detalle diario de kilómetros y eficiencia</div></div>
-        <span id="cntDias" style="font-size:12px;color:#6b7a99">–</span>
-      </div>
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead><tr>
-            <th onclick="sortTable('dia','dia')">Día</th>
-            <th class="r" onclick="sortTable('dia','kmTotal')">Km Total</th>
-            <th class="r" onclick="sortTable('dia','kmServicio')">Km Servicio</th>
-            <th class="r" onclick="sortTable('dia','kmInef')">Km Inef.</th>
-            <th class="r" onclick="sortTable('dia','pctInef')">% Inef.</th>
-            <th class="r" onclick="sortTable('dia','perdida')">Pérdida</th>
-            <th class="r" onclick="sortTable('dia','permitidos')">Permitidos</th>
-          </tr></thead>
-          <tbody id="diasTbody"></tbody>
-        </table>
-      </div>
-    </div>
+    <div class="table-card"><div class="table-hdr"><div><div class="table-hdr-title">Resumen por cliente</div></div><span id="cntClientes">–</span></div><div class="table-scroll"><table class="data-table" id="clientesTable"><thead><tr><th onclick="sortClientes('cliente')">Cliente</th><th class="r" onclick="sortClientes('kmTotal')">Km GPS</th><th class="r" onclick="sortClientes('kmBus')">Km Bustrax</th><th class="r" onclick="sortClientes('kmInef')">Km Inef.</th><th class="r" onclick="sortClientes('pct')">% Inef.</th></tr></thead><tbody id="clientesTbody"></tbody></table></div></div>
+    <div class="section-divider"><div class="section-divider-title">Km por Carro</div><div class="section-divider-line"></div></div>
+    <div class="table-card"><div class="table-hdr"><div><div class="table-hdr-title">Resumen por unidad</div></div><span id="cntCarros">–</span></div><div class="table-scroll"><table class="data-table" id="carrosTable"><thead><tr><th onclick="sortCarros('vehicleId')">Vehicle ID</th><th onclick="sortCarros('cliente')">Cliente</th><th class="r" onclick="sortCarros('kmTotal')">Km GPS</th><th class="r" onclick="sortCarros('kmBus')">Km Bustrax</th><th class="r" onclick="sortCarros('kmInef')">Km Inef.</th><th class="r" onclick="sortCarros('pct')">% Inef.</th></tr></thead><tbody id="carrosTbody"></tbody></table></div></div>
   </main>
 </div>
-
-<div class="modal-overlay" id="unitModal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-box">
-    <div class="modal-head"><h3 id="modalTitle"></h3><button class="modal-close" onclick="closeModal()">✕</button></div>
-    <div class="modal-body" id="modalBody"></div>
-  </div>
-</div>
-
+<div class="modal-overlay" id="unitModal" onclick="if(event.target===this)closeModal()"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle"></h3><button class="modal-close" onclick="closeModal()">✕</button></div><div class="modal-body" id="modalBody"></div></div></div>
 <script>
-const SHEET_ID  = '1PZENkl6lPro23DZA1-Q7T5wmvY15WbX0rSOZujm0ZhM';
-const SHEET_TAB = 'Kilometros';
+const SHEET_ID = '1qQV_wyKt0lyIFgRaeWx-kz-a8TbRMfOFDlEkFhLFM8I';
+const SHEET_KM = 'Kilometros';
+let DATA_UNIDAD = [], DATA_RANGOS = [], KM_PERMITIDO = 15000;
+let SC_SEL = {ger:'', jef:'', cli:'', car:''}, SC_VALS = {ger:[], jef:[], cli:[], car:[]};
+let rangosChart = null;
 
-// Nombre exacto de cada tabla nombrada en Google Sheets
-const TBL_PROD = 'Productividad Mensual';
-const TBL_CLI  = 'Km por Cliente';
-const TBL_DIA  = 'Km por Dia';
-
-let DATA_PROD = [], DATA_CLI = [], DATA_DIA = [];
-let SC_SEL = {ger:'',jef:'',cli:'',car:''}, SC_VALS = {ger:[],jef:[],cli:[],car:[]};
-let prodChart = null;
-let sortState = {};
-
-/* ────────── utilidades ────────── */
-function numVal(v){
-  if(v===undefined||v===null||v==='') return 0;
-  let s = String(v).replace(/[$,%\s]/g,'').replace(/,/g,'');
-  let n = parseFloat(s);
-  return isNaN(n)?0:n;
-}
+function numVal(v){ let n=parseFloat(String(v||'0').replace(/[,%\s]/g,'')); return isNaN(n)?0:n; }
 function fmtN(n){ return Math.round(n||0).toLocaleString('es-MX'); }
-function fmtPct(v){ return (v||0).toFixed(1)+'%'; }
-function fmtPp(v){ return (v>=0?'+':'')+v.toFixed(2)+' pp'; }
-function ppColor(v){ return v>=0?'#2e7d32':'#c62828'; }
+function csvUrl(){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_KM}`; }
 
-/* ────────── fetch de tabla nombrada vía GViz ────────── */
-function tableUrl(tableName){
-  // GViz acepta la cláusula "FROM <NombreTabla>" con comillas invertidas
-  let tq = encodeURIComponent(`SELECT * FROM \`${tableName}\``);
-  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}&tq=${tq}`;
-}
-
-// Fallback: descarga la hoja completa y detecta bloques por encabezados
-function fullSheetUrl(){
-  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`;
-}
-
-function parseCSVLines(text){
+function parseCSV(text){
   if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
-  let lines = text.trim().split(/\r?\n/);
-  return lines.map(line=>{
+  let lines=text.split(/\r?\n/);
+  if(lines.length<2) return;
+  let headers=[], inQ=false, cur='', hrow=[];
+  for(let c of lines[0]){ if(c=='"'){ inQ=!inQ; } else if(c==',' && !inQ){ hrow.push(cur.trim()); cur=''; } else { cur+=c; } }
+  hrow.push(cur.trim()); headers=hrow.map(h=>h.replace(/^\uFEFF/,'').toLowerCase());
+  DATA_UNIDAD=[]; DATA_RANGOS=[];
+  let idxVeh=headers.findIndex(h=>h.includes('vehicle')), idxCli=headers.findIndex(h=>h==='cliente'), idxGer=headers.findIndex(h=>h==='gerente'), idxJef=headers.findIndex(h=>h==='jefe');
+  let idxKm=headers.findIndex(h=>h==='km total'), idxBus=headers.findIndex(h=>h.includes('viajes bustrax')), idxInef=headers.findIndex(h=>h==='km ineficiente'), idxPct=headers.findIndex(h=>h==='%');
+  let idxAnio=headers.findIndex(h=>h==='año'), idxSem=headers.findIndex(h=>h==='sem'), idxR0=headers.findIndex(h=>h.includes('<5')), idxR1=headers.findIndex(h=>h.includes('5km a 10')), idxR2=headers.findIndex(h=>h.includes('10km a 15')), idxR3=headers.findIndex(h=>h.includes('>15'));
+  for(let i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
     let cols=[], inQ=false, cur='';
-    for(let c of line){
-      if(c==='"'){inQ=!inQ;}
-      else if(c===','&&!inQ){cols.push(cur.trim());cur='';}
-      else{cur+=c;}
-    }
+    for(let c of lines[i]){ if(c=='"'){ inQ=!inQ; } else if(c==',' && !inQ){ cols.push(cur.trim()); cur=''; } else { cur+=c; } }
     cols.push(cur.trim());
-    return cols;
-  });
-}
-
-function csvToObjects(text){
-  let rows = parseCSVLines(text);
-  if(rows.length<2) return [];
-  let headers = rows[0].map(h=>h.toLowerCase().replace(/^\uFEFF/,'').trim());
-  return rows.slice(1).filter(r=>r.some(c=>c.trim())).map(r=>{
-    let obj={};
-    headers.forEach((h,i)=>obj[h]=r[i]||'');
-    return obj;
-  });
-}
-
-/* ────────── parsers por tabla ────────── */
-function parseProd(objs){
-  return objs
-    .filter(o=>o['mes']&&o['% productividad'])
-    .map(o=>({
-      mes:     o['mes'],
-      kmTotal: numVal(o['km total']),
-      kmServ:  numVal(o['km servicio']),
-      kmInef:  numVal(o['km ineficiente']),
-      pct:     numVal(o['% productividad'])
-    }));
-}
-
-function parseCli(objs){
-  return objs
-    .filter(o=>o['cliente']||o['udn'])
-    .map(o=>({
-      udn:     o['udn']||'',
-      gerente: o['gerente']||'',
-      jefe:    o['jefe']||'',
-      cliente: o['cliente']||'',
-      kmTotal: numVal(o['km total']),
-      kmBus:   numVal(o['viajes bustrax']),
-      kmInef:  numVal(o['km ineficiente']),
-      pct:     numVal(o['%'])
-    }));
-}
-
-function parseDia(objs){
-  return objs
-    .filter(o=>o['dia']||o['día'])
-    .map(o=>({
-      dia:        o['dia']||o['día']||'',
-      kmTotal:    numVal(o['km total']),
-      kmServicio: numVal(o['km servicio']),
-      kmInef:     numVal(o['km ineficiente']),
-      pctInef:    numVal(o['% ineficiencia']),
-      perdida:    numVal(o['perdida']||o['pérdida']),
-      permitidos: numVal(o['permitidos'])
-    }));
-}
-
-/* ────────── fetch con fallback ────────── */
-async function fetchTable(tableName, parser){
-  // Intento 1: query con nombre de tabla
-  try{
-    let r = await fetch(tableUrl(tableName));
-    if(r.ok){
-      let txt = await r.text();
-      // GViz devuelve error en el CSV si el nombre no existe
-      if(!txt.includes('Error') && !txt.includes('Invalid')){
-        let objs = csvToObjects(txt);
-        if(objs.length) return parser(objs);
-      }
+    let veh=cols[idxVeh]||'';
+    if(veh && veh!=='-' && idxKm>=0){
+      DATA_UNIDAD.push({ veh, cliente:cols[idxCli]||'', gerente:cols[idxGer]||'', jefe:cols[idxJef]||'', kmTotal:numVal(cols[idxKm]), kmBus:numVal(cols[idxBus]), kmInef:numVal(cols[idxInef]), pct:numVal(cols[idxPct]) });
     }
-  }catch(e){}
-  return [];
-}
-
-/* ────────── fallback: hoja completa y detección de bloques ────────── */
-async function fetchFullSheet(){
-  let r = await fetch(fullSheetUrl());
-  if(!r.ok) throw new Error('Error HTTP '+r.status);
-  let txt = await r.text();
-  if(txt.charCodeAt(0)===0xFEFF) txt=txt.slice(1);
-
-  let allLines = parseCSVLines(txt);
-
-  // Encontrar filas que sirven de encabezado para cada bloque
-  // Criterio: la fila cuya primera celda (case-insensitive) coincide con el nombre de tabla o sus columnas clave
-  function findBlockStart(keyword){
-    for(let i=0;i<allLines.length;i++){
-      let row = allLines[i].map(c=>c.toLowerCase().trim());
-      if(row.some(c=>c===keyword.toLowerCase())) return i;
+    if(idxAnio>=0 && idxSem>=0 && cols[idxAnio] && cols[idxSem]){
+      DATA_RANGOS.push({ anio:parseInt(cols[idxAnio]), sem:parseInt(cols[idxSem]), r0:numVal(cols[idxR0]), r1:numVal(cols[idxR1]), r2:numVal(cols[idxR2]), r3:numVal(cols[idxR3]) });
     }
-    return -1;
-  }
-
-  function extractBlock(startRow){
-    // La fila startRow es la de encabezados; las siguientes son datos hasta fila vacía
-    let headers = allLines[startRow].map(h=>h.toLowerCase().trim());
-    let objs=[];
-    for(let i=startRow+1;i<allLines.length;i++){
-      let row=allLines[i];
-      if(!row.some(c=>c.trim())) break;
-      let obj={};
-      headers.forEach((h,idx)=>obj[h]=row[idx]||'');
-      objs.push(obj);
-    }
-    return objs;
-  }
-
-  // Buscar por columna clave única de cada tabla
-  let prodStart = findBlockStart('% productividad');
-  let cliStart  = findBlockStart('udn');
-  let diaStart  = findBlockStart('% ineficiencia');
-
-  if(prodStart>0) DATA_PROD = parseProd(extractBlock(prodStart-1>-1?prodStart-1:prodStart));
-  // Para prod, el encabezado real está una fila arriba de '% productividad' si es fila de datos
-  // Re-intentar buscando la fila que tiene 'mes' como encabezado
-  let mesStart = findBlockStart('mes');
-  if(mesStart>=0) DATA_PROD = parseProd(extractBlock(mesStart));
-
-  if(cliStart>=0) DATA_CLI = parseCli(extractBlock(cliStart));
-  if(diaStart>=0){
-    // encabezado real una fila arriba
-    let hdrRow = diaStart>0 ? diaStart-1 : diaStart;
-    // verificar que realmente tiene 'dia' en esa fila
-    let check = allLines[hdrRow].map(c=>c.toLowerCase().trim());
-    if(check.includes('dia')||check.includes('día')) DATA_DIA = parseDia(extractBlock(hdrRow));
-    else DATA_DIA = parseDia(extractBlock(diaStart));
   }
 }
 
-/* ────────── FILTROS ────────── */
-function filteredCli(){
-  return DATA_CLI.filter(r=>{
+function filteredUnidades(){
+  return DATA_UNIDAD.filter(r=>{
     if(SC_SEL.ger && r.gerente!==SC_SEL.ger) return false;
     if(SC_SEL.jef && r.jefe!==SC_SEL.jef) return false;
     if(SC_SEL.cli && r.cliente!==SC_SEL.cli) return false;
-    if(SC_SEL.car && r.udn!==SC_SEL.car) return false;
+    if(SC_SEL.car && r.veh!==SC_SEL.car) return false;
     return true;
   });
 }
-function cascadeFilters(){
-  SC_VALS.ger=[...new Set(DATA_CLI.map(r=>r.gerente).filter(v=>v))].sort();
-  let g=SC_SEL.ger?DATA_CLI.filter(r=>r.gerente===SC_SEL.ger):DATA_CLI;
-  SC_VALS.jef=[...new Set(g.map(r=>r.jefe).filter(v=>v))].sort();
-  let j=SC_SEL.jef?g.filter(r=>r.jefe===SC_SEL.jef):g;
-  SC_VALS.cli=[...new Set(j.map(r=>r.cliente).filter(v=>v))].sort();
-  let c=SC_SEL.cli?j.filter(r=>r.cliente===SC_SEL.cli):j;
-  SC_VALS.car=[...new Set(c.map(r=>r.udn).filter(v=>v&&v!=='-'))].sort();
-  ['ger','jef','cli','car'].forEach(k=>{ if(SC_SEL[k]&&!SC_VALS[k].includes(SC_SEL[k])) SC_SEL[k]=''; });
+
+function filteredClientes(){
+  let map=new Map();
+  filteredUnidades().forEach(r=>{
+    let cli=r.cliente||'SIN ASIGNACION';
+    if(!map.has(cli)) map.set(cli,{cliente:cli,kmTotal:0,kmBus:0,kmInef:0});
+    let d=map.get(cli);
+    d.kmTotal+=r.kmTotal; d.kmBus+=r.kmBus; d.kmInef+=r.kmInef;
+  });
+  return Array.from(map.values()).map(c=>{ c.pct=c.kmTotal?Math.abs(c.kmInef)/c.kmTotal*100:0; return c; });
 }
 
-/* ────────── KPIs principales (de tabla clientes) ────────── */
 function drawKPIs(){
-  let rows = filteredCli();
-  let kmTotal = rows.reduce((s,r)=>s+r.kmTotal,0);
-  let kmBus   = rows.reduce((s,r)=>s+r.kmBus,0);
-  let kmInef  = rows.reduce((s,r)=>s+Math.abs(r.kmInef),0);
-  let pct     = kmTotal ? kmInef/kmTotal*100 : 0;
-  document.getElementById('kpiKmGps').textContent  = fmtN(kmTotal);
-  document.getElementById('kpiKmGpsSub').textContent = rows.length+' clientes';
-  document.getElementById('kpiKmBus').textContent  = fmtN(kmBus);
-  document.getElementById('kpiKmBusSub').textContent = 'viajes Bustrax';
-  document.getElementById('kpiKmInef').textContent = fmtN(kmInef);
-  document.getElementById('kpiKmInefSub').textContent = fmtPct(pct)+' del total';
-  let el=document.getElementById('kpiDifVal');
-  el.textContent = fmtPct(pct);
-  el.style.color = pct>15?'#f87171':'#84cc16';
-  document.getElementById('kpiDifSub').textContent = pct>15?'⚠️ Excede meta 15%':'✅ Dentro de meta';
+  let rows=filteredUnidades();
+  let kmGps=rows.reduce((s,r)=>s+r.kmTotal,0);
+  let kmBus=rows.reduce((s,r)=>s+r.kmBus,0);
+  let kmInef=rows.reduce((s,r)=>s+Math.abs(r.kmInef),0);
+  document.getElementById('kpiKmGps').textContent=fmtN(kmGps);
+  document.getElementById('kpiKmGpsSub').textContent=rows.length+' unidades';
+  document.getElementById('kpiKmBus').textContent=fmtN(kmBus);
+  document.getElementById('kpiKmInef').textContent=fmtN(kmInef);
+  let pct=kmGps?kmInef/kmGps*100:0;
+  document.getElementById('kpiKmInefSub').textContent=pct.toFixed(1)+'% del GPS';
+  document.getElementById('kpiKmInefPct').innerHTML=`GPS: ${fmtN(kmGps)}<br>Bustrax: ${fmtN(kmBus)}`;
+  let difVal=document.getElementById('kpiDifVal');
+  difVal.textContent=fmtN(kmInef);
+  difVal.style.color=kmInef>KM_PERMITIDO?'#f87171':'#84cc16';
+  document.getElementById('kpiDifSub').textContent=kmInef>KM_PERMITIDO?'⚠️ Excede permitido':'✅ Dentro del permitido';
+  document.getElementById('kpiDifPct').textContent=`Meta: ${fmtN(KM_PERMITIDO)} km`;
 }
 
-/* ────────── PRODUCTIVIDAD ────────── */
-function drawProductividad(){
-  if(!DATA_PROD.length) return;
-  let rows=DATA_PROD;
-  let first=rows[0], last=rows[rows.length-1];
-  let prev2=rows.length>=3?rows[rows.length-3]:first;
-
-  document.getElementById('prodRange').textContent=`${first.mes} – ${last.mes}`;
-  document.getElementById('prodSubline').textContent=`% de kilómetros productivos respecto al total recorrido · ${first.mes} – ${last.mes}`;
-
-  let efIni=first.pct, efAct=last.pct;
-  let mejAcum=efAct-efIni, mej2m=efAct-prev2.pct;
-
-  document.getElementById('prodEfIni').textContent=fmtPct(efIni);
-  document.getElementById('prodEfIniSub').textContent=first.mes;
-  document.getElementById('prodEfAct').textContent=fmtPct(efAct);
-  document.getElementById('prodEfActSub').textContent=last.mes;
-
-  let maEl=document.getElementById('prodMejAcum');
-  maEl.textContent=fmtPp(mejAcum); maEl.style.color=ppColor(mejAcum);
-  document.getElementById('prodMejAcumSub').textContent=`${first.mes} → ${last.mes}`;
-
-  let m2El=document.getElementById('prodMej2m');
-  m2El.textContent=fmtPp(mej2m); m2El.style.color=ppColor(mej2m);
-  document.getElementById('prodMej2mSub').textContent=rows.length>=3?`${prev2.mes} → ${last.mes}`:`${first.mes} → ${last.mes}`;
-
-  // Línea de tendencia (regresión lineal)
-  let vals=rows.map(r=>r.pct), n=vals.length;
-  let sumX=0,sumY=0,sumXY=0,sumX2=0;
-  vals.forEach((v,i)=>{sumX+=i;sumY+=v;sumXY+=i*v;sumX2+=i*i;});
-  let slope=(n*sumXY-sumX*sumY)/(n*sumX2-sumX*sumX)||0;
-  let intercept=(sumY-slope*sumX)/n;
-  let trend=vals.map((_,i)=>parseFloat((intercept+slope*i).toFixed(4)));
-
-  // Rango del eje Y: ±2pp alrededor del min/max
-  let minV=Math.min(...vals,...trend), maxV=Math.max(...vals,...trend);
-  let pad=Math.max((maxV-minV)*0.3,0.5);
-
-  let ctx=document.getElementById('prodChart').getContext('2d');
-  if(prodChart) prodChart.destroy();
-  prodChart=new Chart(ctx,{
-    type:'line',
+function drawRangos(){
+  if(!DATA_RANGOS.length){ document.getElementById('rangosTotal').textContent='Sin datos'; return; }
+  let semanaMap=new Map();
+  DATA_RANGOS.forEach(r=>{ let k=`${r.anio}_${r.sem}`; if(!semanaMap.has(k)) semanaMap.set(k,{sem:r.sem,r0:0,r1:0,r2:0,r3:0}); let ex=semanaMap.get(k); ex.r0+=r.r0; ex.r1+=r.r1; ex.r2+=r.r2; ex.r3+=r.r3; });
+  let sems=Array.from(semanaMap.values()).filter(s=>(s.r0+s.r1+s.r2+s.r3)>0).sort((a,b)=>a.sem-b.sem);
+  if(!sems.length) return;
+  let labels=sems.map(s=>`Semana ${s.sem}`);
+  let totalUltima=sems[sems.length-1].r0+sems[sems.length-1].r1+sems[sems.length-1].r2+sems[sems.length-1].r3;
+  document.getElementById('rangosTotal').textContent=totalUltima+' operadores';
+  let ctx=document.getElementById('rangosChart').getContext('2d');
+  if(rangosChart) rangosChart.destroy();
+  rangosChart=new Chart(ctx,{
+    type:'bar',
     data:{
-      labels:rows.map(r=>r.mes),
+      labels:labels,
       datasets:[
-        {
-          label:'% Productividad',
-          data:vals,
-          borderColor:'#1e6b3a',
-          backgroundColor:'rgba(30,107,58,0.10)',
-          fill:true,
-          tension:0.35,
-          pointBackgroundColor:'#1e6b3a',
-          pointRadius:5,
-          pointHoverRadius:7,
-          borderWidth:2.5,
-          order:1
-        },
-        {
-          label:'Tendencia',
-          data:trend,
-          borderColor:'rgba(160,160,160,0.7)',
-          borderDash:[6,4],
-          borderWidth:1.5,
-          pointRadius:0,
-          fill:false,
-          tension:0,
-          order:2
-        }
+        {label:'< 5 km', data:sems.map(s=>s.r0), backgroundColor:'#84cc16', borderRadius:4},
+        {label:'5–10 km', data:sems.map(s=>s.r1), backgroundColor:'#fbbf24', borderRadius:4},
+        {label:'10–15 km', data:sems.map(s=>s.r2), backgroundColor:'#f97316', borderRadius:4},
+        {label:'> 15 km', data:sems.map(s=>s.r3), backgroundColor:'#E24B4A', borderRadius:4}
       ]
     },
     options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          callbacks:{
-            label:c=>c.datasetIndex===1?`Tendencia: ${c.raw.toFixed(2)}%`:`Productividad: ${c.raw.toFixed(2)}%`
-          }
-        }
-      },
-      scales:{
-        x:{grid:{display:false},ticks:{font:{size:11}}},
-        y:{
-          min:parseFloat((minV-pad).toFixed(2)),
-          max:parseFloat((maxV+pad).toFixed(2)),
-          ticks:{callback:v=>v.toFixed(1)+'%',font:{size:11}},
-          grid:{color:'rgba(0,0,0,0.05)'}
-        }
-      }
-    },
-    plugins:[{
-      id:'ptLabels',
-      afterDatasetsDraw(chart){
-        let {ctx}=chart;
-        let meta=chart.getDatasetMeta(0);
-        meta.data.forEach((pt,i)=>{
-          let v=DATA_PROD[i].pct;
-          ctx.save();
-          ctx.font='bold 11px Inter,sans-serif';
-          ctx.fillStyle='#1e6b3a';
-          ctx.textAlign='center';
-          ctx.fillText(v.toFixed(2)+'%',pt.x,pt.y-10);
-          ctx.restore();
-        });
-      }
-    }]
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{ font:{size:11} } }, tooltip:{ callbacks:{ label:ctx=>`${ctx.dataset.label}: ${ctx.raw} operadores` } } },
+      scales:{ x:{ stacked:false, grid:{display:false}, ticks:{font:{size:11}} }, y:{ stacked:false, beginAtZero:true, ticks:{stepSize:1}, title:{display:true, text:'Operadores'} } }
+    }
   });
 }
 
-/* ────────── TABLA CLIENTES ────────── */
-function renderClientes(rows){
-  let sorted=[...rows].sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
-  document.getElementById('cntClientes').textContent=sorted.length+' registros';
-  document.getElementById('clientesTbody').innerHTML=sorted.map(r=>{
-    let absPct=Math.abs(r.pct);
-    let cls=absPct<=15?'green':absPct<=30?'amber':'red';
-    let sign=r.kmInef<0?'':r.kmInef>0?'+':'';
-    let inefCls=r.kmInef<0?'val-neg':r.kmInef>0?'val-pos':'';
-    return `<tr onclick="openModal('${r.cliente.replace(/'/g,"\\'")}')">
-      <td>${r.udn||'–'}</td>
-      <td>${r.gerente||'–'}</td>
-      <td>${r.jefe||'–'}</td>
-      <td>${r.cliente||'–'}</td>
-      <td class="r">${fmtN(r.kmTotal)}</td>
-      <td class="r">${fmtN(r.kmBus)}</td>
-      <td class="r"><span class="${inefCls}">${sign}${fmtN(Math.abs(r.kmInef))}</span></td>
-      <td class="r"><span class="pill ${cls}">${r.pct.toFixed(0)}%</span></td>
-    </tr>`;
-  }).join('');
+function drawClientes(){
+  let cli=filteredClientes().sort((a,b)=>b.pct-a.pct);
+  document.getElementById('cntClientes').textContent=cli.length+' clientes';
+  let tbody=document.getElementById('clientesTbody');
+  if(!cli.length){ tbody.innerHTML='<tr><td colspan="5">Sin datos</td></tr>'; return; }
+  tbody.innerHTML=cli.map(c=>{ let cls=c.pct<=15?'green':c.pct<=35?'amber':'red'; let sign=c.kmInef<=0?'-':'+'; let inefCls=c.kmInef<=0?'val-neg':'val-pos'; return `<tr onclick="openModal('${c.cliente}')"><td>${c.cliente}</td><td class="r">${fmtN(c.kmTotal)}</td><td class="r">${fmtN(c.kmBus)}</td><td class="r"><span class="${inefCls}">${sign}${fmtN(Math.abs(c.kmInef))}</span></td><td class="r"><span class="pill ${cls}">${c.pct.toFixed(1)}%</span></td></tr>`; }).join('');
 }
 
-function drawClientes(){ renderClientes(filteredCli()); }
-
-/* ────────── TABLA DÍAS ────────── */
-function renderDias(rows){
-  document.getElementById('cntDias').textContent=rows.length+' días';
-  document.getElementById('diasTbody').innerHTML=rows.map(r=>{
-    let cls=r.pctInef<=15?'green':r.pctInef<=30?'amber':'red';
-    return `<tr>
-      <td>${r.dia}</td>
-      <td class="r">${fmtN(r.kmTotal)}</td>
-      <td class="r">${fmtN(r.kmServicio)}</td>
-      <td class="r">${fmtN(r.kmInef)}</td>
-      <td class="r"><span class="pill ${cls}">${fmtPct(r.pctInef)}</span></td>
-      <td class="r">${r.perdida?'$'+fmtN(r.perdida):'–'}</td>
-      <td class="r">${fmtN(r.permitidos)}</td>
-    </tr>`;
-  }).join('');
-}
-function drawDias(){ renderDias(DATA_DIA); }
-
-/* ────────── SORT GENÉRICO ────────── */
-function sortTable(tbl, col){
-  let key=`${tbl}_${col}`;
-  sortState[key] = !sortState[key]; // toggle asc/desc
-  let asc = sortState[key];
-  if(tbl==='cli'){
-    let rows=[...filteredCli()];
-    rows.sort((a,b)=>{
-      let va=a[col]||0, vb=b[col]||0;
-      if(typeof va==='string') return asc?va.localeCompare(vb):vb.localeCompare(va);
-      return asc?va-vb:vb-va;
-    });
-    renderClientes(rows);
-  } else if(tbl==='dia'){
-    let rows=[...DATA_DIA];
-    rows.sort((a,b)=>{
-      let va=a[col]||0, vb=b[col]||0;
-      if(col==='dia') return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
-      return asc?va-vb:vb-va;
-    });
-    renderDias(rows);
-  }
+function drawCarros(){
+  let rows=filteredUnidades().sort((a,b)=>Math.abs(b.kmInef)-Math.abs(a.kmInef));
+  document.getElementById('cntCarros').textContent=rows.length+' unidades';
+  let tbody=document.getElementById('carrosTbody');
+  if(!rows.length){ tbody.innerHTML='<tr><td colspan="6">Sin datos</td></tr>'; return; }
+  tbody.innerHTML=rows.map(r=>{ let pct=r.kmTotal?Math.abs(r.kmInef)/r.kmTotal*100:0; let cls=pct<=15?'green':pct<=35?'amber':'red'; let sign=r.kmInef<=0?'-':'+'; let inefCls=r.kmInef<=0?'val-neg':'val-pos'; return `<tr><td>${r.veh}</td><td>${r.cliente||'–'}</td><td class="r">${fmtN(r.kmTotal)}</td><td class="r">${fmtN(r.kmBus)}</td><td class="r"><span class="${inefCls}">${sign}${fmtN(Math.abs(r.kmInef))}</span></td><td class="r"><span class="pill ${cls}">${pct.toFixed(1)}%</span></td></tr>`; }).join('');
 }
 
-/* ────────── MODAL ────────── */
+function draw(){ drawKPIs(); drawRangos(); drawClientes(); drawCarros(); }
+
+function cascadeFilters(){
+  SC_VALS.ger=[...new Set(DATA_UNIDAD.map(r=>r.gerente).filter(v=>v))];
+  let g=SC_SEL.ger?DATA_UNIDAD.filter(r=>r.gerente===SC_SEL.ger):DATA_UNIDAD;
+  SC_VALS.jef=[...new Set(g.map(r=>r.jefe).filter(v=>v))];
+  let j=SC_SEL.jef?g.filter(r=>r.jefe===SC_SEL.jef):g;
+  SC_VALS.cli=[...new Set(j.map(r=>r.cliente).filter(v=>v))];
+  let c=SC_SEL.cli?j.filter(r=>r.cliente===SC_SEL.cli):j;
+  SC_VALS.car=[...new Set(c.map(r=>r.veh).filter(v=>v&&v!=='-'))];
+  ['ger','jef','cli','car'].forEach(k=>{ if(SC_SEL[k] && !SC_VALS[k].includes(SC_SEL[k])) SC_SEL[k]=''; });
+}
+
+function scOpen(k){ document.querySelectorAll('.sc-wrap').forEach(w=>w.classList.remove('open')); document.getElementById(`sc-${k}`).classList.add('open'); scRenderDD(k); }
+function scFilter(k){ if(SC_SEL[k]!==''){ SC_SEL[k]=''; cascadeFilters(); draw(); } document.getElementById(`sc-${k}`).classList.add('open'); scRenderDD(k); }
+function scRenderDD(k){ let dd=document.getElementById(`sc-${k}-dd`); let q=document.getElementById(`sc-${k}-input`).value.toLowerCase(); let f=SC_VALS[k].filter(v=>v.toLowerCase().includes(q)); dd.innerHTML=`<div class="sc-opt${SC_SEL[k]===''?' selected':''}" data-val="" onclick="scSelect('${k}','')">Todos</div>`+f.map(v=>`<div class="sc-opt${SC_SEL[k]===v?' selected':''}" data-val="${v}" onclick="scSelect('${k}','${v}')">${v}</div>`).join(''); }
+function scSelect(k,v){ SC_SEL[k]=v; document.getElementById(`sc-${k}-input`).value=v; document.getElementById(`sc-${k}`).classList.remove('open'); cascadeFilters(); draw(); }
+function resetFilters(){ Object.keys(SC_SEL).forEach(k=>{ SC_SEL[k]=''; document.getElementById(`sc-${k}-input`).value=''; }); cascadeFilters(); draw(); }
+
+function sortClientes(col){ let cli=filteredClientes(); let sorted=col==='cliente'?cli.sort((a,b)=>a.cliente.localeCompare(b.cliente)):cli.sort((a,b)=>b[col]-a[col]); document.getElementById('clientesTbody').innerHTML=sorted.map(c=>{ let cls=c.pct<=15?'green':c.pct<=35?'amber':'red'; let sign=c.kmInef<=0?'-':'+'; let inefCls=c.kmInef<=0?'val-neg':'val-pos'; return `<tr onclick="openModal('${c.cliente}')"><td>${c.cliente}</td><td class="r">${fmtN(c.kmTotal)}</td><td class="r">${fmtN(c.kmBus)}</td><td class="r"><span class="${inefCls}">${sign}${fmtN(Math.abs(c.kmInef))}</span></td><td class="r"><span class="pill ${cls}">${c.pct.toFixed(1)}%</span></td></tr>`; }).join(''); }
+function sortCarros(col){ let rows=filteredUnidades(); let sorted=col==='vehicleId'?rows.sort((a,b)=>a.veh.localeCompare(b.veh)):col==='cliente'?rows.sort((a,b)=>a.cliente.localeCompare(b.cliente)):rows.sort((a,b)=>Math.abs(b[col])-Math.abs(a[col])); document.getElementById('carrosTbody').innerHTML=sorted.map(r=>{ let pct=r.kmTotal?Math.abs(r.kmInef)/r.kmTotal*100:0; let cls=pct<=15?'green':pct<=35?'amber':'red'; let sign=r.kmInef<=0?'-':'+'; let inefCls=r.kmInef<=0?'val-neg':'val-pos'; return `<tr><td>${r.veh}</td><td>${r.cliente||'–'}</td><td class="r">${fmtN(r.kmTotal)}</td><td class="r">${fmtN(r.kmBus)}</td><td class="r"><span class="${inefCls}">${sign}${fmtN(Math.abs(r.kmInef))}</span></td><td class="r"><span class="pill ${cls}">${pct.toFixed(1)}%</span></td></tr>`; }).join(''); }
+
 function openModal(cliente){
-  let rows=DATA_CLI.filter(r=>r.cliente===cliente);
+  let unidades=DATA_UNIDAD.filter(r=>r.cliente===cliente);
   document.getElementById('modalTitle').textContent=cliente;
-  document.getElementById('modalBody').innerHTML=`
-    <table class="modal-table">
-      <thead><tr><th>UDN</th><th>Gerente</th><th>Jefe</th><th class="r">Km Total</th><th class="r">Bustrax</th><th class="r">Km Inef.</th><th class="r">%</th></tr></thead>
-      <tbody>${rows.map(u=>{
-        let cls=Math.abs(u.pct)<=15?'green':Math.abs(u.pct)<=30?'amber':'red';
-        return `<tr><td>${u.udn}</td><td>${u.gerente}</td><td>${u.jefe}</td><td class="r">${fmtN(u.kmTotal)}</td><td class="r">${fmtN(u.kmBus)}</td><td class="r">${fmtN(Math.abs(u.kmInef))}</td><td class="r"><span class="pill ${cls}">${u.pct.toFixed(0)}%</span></td></tr>`;
-      }).join('')}</tbody>
-    </table>`;
+  document.getElementById('modalBody').innerHTML=`<table class="modal-table"><thead><tr><th>Unidad</th><th class="r">Km GPS</th><th class="r">Km Bustrax</th><th class="r">Km Inef.</th><th class="r">% Inef.</th></tr></thead><tbody>${unidades.map(u=>{ let pct=u.kmTotal?Math.abs(u.kmInef)/u.kmTotal*100:0; let cls=pct<=15?'green':pct<=35?'amber':'red'; return `<tr><td>${u.veh}</td><td class="r">${fmtN(u.kmTotal)}</td><td class="r">${fmtN(u.kmBus)}</td><td class="r">${fmtN(Math.abs(u.kmInef))}</td><td class="r"><span class="pill ${cls}">${pct.toFixed(1)}%</span></td></tr>`; }).join('')}</tbody></table>`;
   document.getElementById('unitModal').classList.add('open');
 }
 function closeModal(){ document.getElementById('unitModal').classList.remove('open'); }
+function toggleDropdown(id){ document.getElementById(id).classList.toggle('open'); }
+document.addEventListener('click',e=>{ if(!e.target.closest('.dropdown')) document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open')); });
 
-/* ────────── FILTROS UI ────────── */
-function scOpen(k){ document.querySelectorAll('.sc-wrap').forEach(w=>w.classList.remove('open')); document.getElementById(`sc-${k}`).classList.add('open'); scRenderDD(k); }
-function scFilter(k){ if(SC_SEL[k]){ SC_SEL[k]=''; cascadeFilters(); drawKPIs(); drawClientes(); } document.getElementById(`sc-${k}`).classList.add('open'); scRenderDD(k); }
-function scRenderDD(k){
-  let dd=document.getElementById(`sc-${k}-dd`);
-  let q=document.getElementById(`sc-${k}-input`).value.toLowerCase();
-  let f=SC_VALS[k].filter(v=>v.toLowerCase().includes(q));
-  dd.innerHTML=`<div class="sc-opt${!SC_SEL[k]?' selected':''}" onclick="scSelect('${k}','')">Todos</div>`
-    +f.map(v=>`<div class="sc-opt${SC_SEL[k]===v?' selected':''}" onclick="scSelect('${k}','${v.replace(/'/g,"\\'").replace(/"/g,"&quot;")}')">${v}</div>`).join('');
-}
-function scSelect(k,v){ SC_SEL[k]=v; document.getElementById(`sc-${k}-input`).value=v; document.getElementById(`sc-${k}`).classList.remove('open'); cascadeFilters(); drawKPIs(); drawClientes(); }
-function resetFilters(){ Object.keys(SC_SEL).forEach(k=>{ SC_SEL[k]=''; document.getElementById(`sc-${k}-input`).value=''; }); cascadeFilters(); drawKPIs(); drawClientes(); }
-
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.sc-wrap')) document.querySelectorAll('.sc-wrap').forEach(w=>w.classList.remove('open'));
-});
-
-/* ────────── INIT ────────── */
-window.addEventListener('DOMContentLoaded', async()=>{
+window.addEventListener('DOMContentLoaded',async()=>{
   document.getElementById('fechaActualizacion').innerHTML=`📅 ${new Date().toLocaleDateString('es-MX')}`;
   let ov=document.getElementById('loadingOverlay');
   try{
-    // Intentar las 3 tablas nombradas en paralelo
-    let [prod, cli, dia] = await Promise.all([
-      fetchTable(TBL_PROD, parseProd),
-      fetchTable(TBL_CLI,  parseCli),
-      fetchTable(TBL_DIA,  parseDia)
-    ]);
-
-    DATA_PROD = prod;
-    DATA_CLI  = cli;
-    DATA_DIA  = dia;
-
-    // Si alguna quedó vacía, usar fallback de hoja completa
-    if(!DATA_PROD.length || !DATA_CLI.length || !DATA_DIA.length){
-      await fetchFullSheet();
-    }
-
-    if(!DATA_CLI.length && !DATA_PROD.length) throw new Error('No se encontraron datos en la hoja');
-
-    cascadeFilters();
-    drawKPIs();
-    drawProductividad();
-    drawClientes();
-    drawDias();
-
-    ov.classList.add('hidden');
-    setTimeout(()=>ov.style.display='none',500);
-  }catch(e){
-    ov.style.display='none';
-    document.getElementById('errMsg').textContent=e.message;
-    document.getElementById('errBanner').classList.remove('hidden');
-    console.error(e);
-  }
+    let res=await fetch(csvUrl()); if(!res.ok) throw new Error('Error HTTP');
+    let txt=await res.text(); parseCSV(txt);
+    if(!DATA_UNIDAD.length) throw new Error('No se encontraron datos');
+    cascadeFilters(); draw(); ov.classList.add('hidden'); setTimeout(()=>ov.style.display='none',500);
+  }catch(e){ ov.style.display='none'; document.getElementById('errMsg').textContent=e.message; document.getElementById('errBanner').classList.remove('hidden'); console.error(e); }
 });
 </script>
 </body>

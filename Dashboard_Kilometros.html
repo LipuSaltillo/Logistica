@@ -106,8 +106,8 @@ nav a:hover{background:#374151}
       <div class="kpi-chip"><div class="kpi-chip-lbl">Km Ineficientes</div><div class="kpi-chip-val" id="kpiKmInef" style="color:#f87171">–</div><div class="kpi-chip-sub" id="kpiKmInefSub"></div><div class="kpi-chip-breakdown" id="kpiKmInefPct"></div></div>
       <div class="kpi-chip"><div class="kpi-chip-lbl">Marginal vs Permitido</div><div class="kpi-chip-val" id="kpiDifVal">–</div><div class="kpi-chip-sub" id="kpiDifSub"></div><div class="kpi-chip-breakdown" id="kpiDifPct"></div></div>
     </div>
-    <div class="section-divider"><div class="section-divider-title">Rangos de Operadores</div><div class="section-divider-sub">Distancia domicilio → punto de inicio</div><div class="section-divider-line"></div></div>
-    <div class="table-card"><div class="table-hdr"><div><div class="table-hdr-title">Evolución por semana · rangos de distancia</div><div class="table-hdr-sub">Barras agrupadas · objetivo: reducir barra roja (&gt;15 km)</div></div><span class="table-count" id="rangosTotal">–</span></div><div class="rangos-chart-wrap"><canvas id="rangosChart"></canvas></div></div>
+    <div class="section-divider"><div class="section-divider-title">Productividad</div><div class="section-divider-sub">Tendencia mensual</div><div class="section-divider-line"></div></div>
+    <div class="table-card"><div class="table-hdr"><div><div class="table-hdr-title">Tendencia mensual de eficiencia</div><div class="table-hdr-sub">% Productividad por mes</div></div><span class="table-count" id="prodTotal">–</span></div><div class="rangos-chart-wrap"><canvas id="prodChart"></canvas></div></div>
     <div class="section-divider"><div class="section-divider-title">Km por Cliente</div><div class="section-divider-line"></div></div>
     <div class="table-card"><div class="table-hdr"><div><div class="table-hdr-title">Resumen por cliente</div></div><span id="cntClientes">–</span></div><div class="table-scroll"><table class="data-table" id="clientesTable"><thead><tr><th onclick="sortClientes('cliente')">Cliente</th><th class="r" onclick="sortClientes('kmTotal')">Km GPS</th><th class="r" onclick="sortClientes('kmBus')">Km Bustrax</th><th class="r" onclick="sortClientes('kmInef')">Km Inef.</th><th class="r" onclick="sortClientes('pct')">% Inef.</th></tr></thead><tbody id="clientesTbody"></tbody></table></div></div>
     <div class="section-divider"><div class="section-divider-title">Km por Carro</div><div class="section-divider-line"></div></div>
@@ -118,9 +118,9 @@ nav a:hover{background:#374151}
 <script>
 const SHEET_ID = '1PZENkl6lPro23DZA1-Q7T5wmvY15WbX0rSOZujm0ZhM';
 const SHEET_KM = 'Kilometros';
-let DATA_UNIDAD = [], DATA_RANGOS = [], KM_PERMITIDO = 15000;
+let DATA_UNIDAD = [], DATA_PROD = [], KM_PERMITIDO = 15000;
 let SC_SEL = {ger:'', jef:'', cli:'', car:''}, SC_VALS = {ger:[], jef:[], cli:[], car:[]};
-let rangosChart = null;
+let prodChart = null;
 
 function numVal(v){ let n=parseFloat(String(v||'0').replace(/[,%\s]/g,'')); return isNaN(n)?0:n; }
 function fmtN(n){ return Math.round(n||0).toLocaleString('es-MX'); }
@@ -133,10 +133,11 @@ function parseCSV(text){
   let headers=[], inQ=false, cur='', hrow=[];
   for(let c of lines[0]){ if(c=='"'){ inQ=!inQ; } else if(c==',' && !inQ){ hrow.push(cur.trim()); cur=''; } else { cur+=c; } }
   hrow.push(cur.trim()); headers=hrow.map(h=>h.replace(/^\uFEFF/,'').toLowerCase());
-  DATA_UNIDAD=[]; DATA_RANGOS=[];
+  DATA_UNIDAD=[]; DATA_PROD=[];
   let idxVeh=headers.findIndex(h=>h.includes('vehicle')), idxCli=headers.findIndex(h=>h==='cliente'), idxGer=headers.findIndex(h=>h==='gerente'), idxJef=headers.findIndex(h=>h==='jefe');
   let idxKm=headers.findIndex(h=>h==='km total'), idxBus=headers.findIndex(h=>h.includes('viajes bustrax')), idxInef=headers.findIndex(h=>h==='km ineficiente'), idxPct=headers.findIndex(h=>h==='%');
-  let idxAnio=headers.findIndex(h=>h==='año'), idxSem=headers.findIndex(h=>h==='sem'), idxR0=headers.findIndex(h=>h.includes('<5')), idxR1=headers.findIndex(h=>h.includes('5km a 10')), idxR2=headers.findIndex(h=>h.includes('10km a 15')), idxR3=headers.findIndex(h=>h.includes('>15'));
+  let idxMes=headers.findIndex(h=>h==='mes'), idxProdPct=headers.findIndex(h=>h.includes('productividad'));
+  let idxKmTotalMes=headers.findIndex(h=>h.includes('km total mensual')), idxKmServMes=headers.findIndex(h=>h.includes('km servicio mensual')), idxKmInefMes=headers.findIndex(h=>h.includes('km ineficiente mensual'));
   for(let i=1;i<lines.length;i++){
     if(!lines[i].trim()) continue;
     let cols=[], inQ=false, cur='';
@@ -146,8 +147,9 @@ function parseCSV(text){
     if(veh && veh!=='-' && idxKm>=0){
       DATA_UNIDAD.push({ veh, cliente:cols[idxCli]||'', gerente:cols[idxGer]||'', jefe:cols[idxJef]||'', kmTotal:numVal(cols[idxKm]), kmBus:numVal(cols[idxBus]), kmInef:numVal(cols[idxInef]), pct:numVal(cols[idxPct]) });
     }
-    if(idxAnio>=0 && idxSem>=0 && cols[idxAnio] && cols[idxSem]){
-      DATA_RANGOS.push({ anio:parseInt(cols[idxAnio]), sem:parseInt(cols[idxSem]), r0:numVal(cols[idxR0]), r1:numVal(cols[idxR1]), r2:numVal(cols[idxR2]), r3:numVal(cols[idxR3]) });
+    let mes=idxMes>=0?(cols[idxMes]||'').trim():'';
+    if(mes && idxProdPct>=0){
+      DATA_PROD.push({ mes, pct:numVal(cols[idxProdPct]), kmTotalMes:numVal(cols[idxKmTotalMes]), kmServMes:numVal(cols[idxKmServMes]), kmInefMes:numVal(cols[idxKmInefMes]) });
     }
   }
 }
@@ -192,33 +194,90 @@ function drawKPIs(){
   document.getElementById('kpiDifPct').textContent=`Meta: ${fmtN(KM_PERMITIDO)} km`;
 }
 
-function drawRangos(){
-  if(!DATA_RANGOS.length){ document.getElementById('rangosTotal').textContent='Sin datos'; return; }
-  let semanaMap=new Map();
-  DATA_RANGOS.forEach(r=>{ let k=`${r.anio}_${r.sem}`; if(!semanaMap.has(k)) semanaMap.set(k,{sem:r.sem,r0:0,r1:0,r2:0,r3:0}); let ex=semanaMap.get(k); ex.r0+=r.r0; ex.r1+=r.r1; ex.r2+=r.r2; ex.r3+=r.r3; });
-  let sems=Array.from(semanaMap.values()).filter(s=>(s.r0+s.r1+s.r2+s.r3)>0).sort((a,b)=>a.sem-b.sem);
-  if(!sems.length) return;
-  let labels=sems.map(s=>`Semana ${s.sem}`);
-  let totalUltima=sems[sems.length-1].r0+sems[sems.length-1].r1+sems[sems.length-1].r2+sems[sems.length-1].r3;
-  document.getElementById('rangosTotal').textContent=totalUltima+' operadores';
-  let ctx=document.getElementById('rangosChart').getContext('2d');
-  if(rangosChart) rangosChart.destroy();
-  rangosChart=new Chart(ctx,{
-    type:'bar',
+const MES_ORDEN={'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,'junio':6,'julio':7,'agosto':8,'septiembre':9,'setiembre':9,'octubre':10,'noviembre':11,'diciembre':12};
+
+function drawProductividad(){
+  if(!DATA_PROD.length){ document.getElementById('prodTotal').textContent='Sin datos'; return; }
+  let meses=[...DATA_PROD].sort((a,b)=>(MES_ORDEN[a.mes.toLowerCase()]||0)-(MES_ORDEN[b.mes.toLowerCase()]||0));
+  document.getElementById('prodTotal').textContent=meses.length+' meses';
+  let labels=meses.map(m=>m.mes);
+  let datos=meses.map(m=>m.pct);
+  let n=datos.length;
+  let tendencia=n>1?datos.map((_,i)=>datos[0]+(datos[n-1]-datos[0])*(i/(n-1))):datos.slice();
+  let ctx=document.getElementById('prodChart').getContext('2d');
+  if(prodChart) prodChart.destroy();
+  prodChart=new Chart(ctx,{
+    type:'line',
     data:{
       labels:labels,
       datasets:[
-        {label:'< 5 km', data:sems.map(s=>s.r0), backgroundColor:'#84cc16', borderRadius:4},
-        {label:'5–10 km', data:sems.map(s=>s.r1), backgroundColor:'#fbbf24', borderRadius:4},
-        {label:'10–15 km', data:sems.map(s=>s.r2), backgroundColor:'#f97316', borderRadius:4},
-        {label:'> 15 km', data:sems.map(s=>s.r3), backgroundColor:'#E24B4A', borderRadius:4}
+        {
+          label:'% Productividad',
+          data:datos,
+          borderColor:'#84cc16',
+          backgroundColor:'rgba(132,204,22,0.12)',
+          borderWidth:3,
+          fill:true,
+          tension:0.35,
+          pointRadius:6,
+          pointBackgroundColor:'#84cc16',
+          pointBorderColor:'#84cc16',
+          pointHoverRadius:7
+        },
+        {
+          label:'Tendencia',
+          data:tendencia,
+          borderColor:'#dde3f0',
+          borderDash:[6,4],
+          borderWidth:1.5,
+          pointRadius:0,
+          fill:false,
+          tension:0
+        }
       ]
     },
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ position:'top', labels:{ font:{size:11} } }, tooltip:{ callbacks:{ label:ctx=>`${ctx.dataset.label}: ${ctx.raw} operadores` } } },
-      scales:{ x:{ stacked:false, grid:{display:false}, ticks:{font:{size:11}} }, y:{ stacked:false, beginAtZero:true, ticks:{stepSize:1}, title:{display:true, text:'Operadores'} } }
-    }
+      plugins:{
+        legend:{ display:false },
+        tooltip:{
+          callbacks:{
+            label:ctx=>{
+              if(ctx.dataset.label==='Tendencia') return `Tendencia: ${ctx.raw.toFixed(2)}%`;
+              return `% Productividad: ${ctx.raw.toFixed(2)}%`;
+            },
+            afterBody:ctx=>{
+              let i=ctx[0].dataIndex; let m=meses[i];
+              return [
+                `Km Total Mensual: ${fmtN(m.kmTotalMes)}`,
+                `Km Servicio Mensual: ${fmtN(m.kmServMes)}`,
+                `Km ineficiente Mensual: ${fmtN(m.kmInefMes)}`
+              ];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:11}} },
+        y:{ beginAtZero:false, ticks:{ font:{size:11}, callback:v=>v+'%' }, grid:{color:'#eef1f6'} }
+      }
+    },
+    plugins:[{
+      id:'pctLabels',
+      afterDatasetsDraw(chart){
+        let {ctx}=chart;
+        let meta=chart.getDatasetMeta(0);
+        ctx.save();
+        ctx.font='700 12px Inter, sans-serif';
+        ctx.fillStyle='#5a8a0e';
+        ctx.textAlign='center';
+        meta.data.forEach((point,i)=>{
+          let v=datos[i];
+          ctx.fillText(v.toFixed(2)+'%', point.x, point.y-14);
+        });
+        ctx.restore();
+      }
+    }]
   });
 }
 
@@ -238,7 +297,7 @@ function drawCarros(){
   tbody.innerHTML=rows.map(r=>{ let pct=r.kmTotal?Math.abs(r.kmInef)/r.kmTotal*100:0; let cls=pct<=15?'green':pct<=35?'amber':'red'; let sign=r.kmInef<=0?'-':'+'; let inefCls=r.kmInef<=0?'val-neg':'val-pos'; return `<tr><td>${r.veh}</td><td>${r.cliente||'–'}</td><td class="r">${fmtN(r.kmTotal)}</td><td class="r">${fmtN(r.kmBus)}</td><td class="r"><span class="${inefCls}">${sign}${fmtN(Math.abs(r.kmInef))}</span></td><td class="r"><span class="pill ${cls}">${pct.toFixed(1)}%</span></td></tr>`; }).join('');
 }
 
-function draw(){ drawKPIs(); drawRangos(); drawClientes(); drawCarros(); }
+function draw(){ drawKPIs(); drawProductividad(); drawClientes(); drawCarros(); }
 
 function cascadeFilters(){
   SC_VALS.ger=[...new Set(DATA_UNIDAD.map(r=>r.gerente).filter(v=>v))];

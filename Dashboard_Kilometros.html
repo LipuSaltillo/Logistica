@@ -124,9 +124,9 @@ let prodChart = null;
 
 function numVal(v){ let n=parseFloat(String(v||'0').replace(/[,%\s]/g,'')); return isNaN(n)?0:n; }
 function fmtN(n){ return Math.round(n||0).toLocaleString('es-MX'); }
-function csvUrl(){ return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_KM}`; }
+function csvUrl(range){ let base=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_KM}`; return range?base+'&range='+range:base; }
 
-function parseCSV(text){
+function parseCSV(text, mesesExternos){
   if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
   let lines=text.split(/\r?\n/);
   if(lines.length<2) return;
@@ -138,6 +138,7 @@ function parseCSV(text){
   let idxKm=headers.findIndex(h=>h==='km total'), idxBus=headers.findIndex(h=>h.includes('viajes bustrax')), idxInef=headers.findIndex(h=>h==='km ineficiente'), idxPct=headers.findIndex(h=>h==='%');
   let idxMes=headers.findIndex(h=>h==='mes'), idxProdPct=headers.findIndex(h=>h.includes('productividad'));
   let idxKmTotalMes=headers.findIndex(h=>h.includes('km total mensual')), idxKmServMes=headers.findIndex(h=>h.includes('km servicio mensual')), idxKmInefMes=headers.findIndex(h=>h.includes('km ineficiente mensual'));
+  let prodRowIdx=0;
   for(let i=1;i<lines.length;i++){
     if(!lines[i].trim()) continue;
     let cols=[], inQ=false, cur='';
@@ -147,10 +148,12 @@ function parseCSV(text){
     if(veh && veh!=='-' && idxKm>=0){
       DATA_UNIDAD.push({ veh, cliente:cols[idxCli]||'', gerente:cols[idxGer]||'', jefe:cols[idxJef]||'', kmTotal:numVal(cols[idxKm]), kmBus:numVal(cols[idxBus]), kmInef:numVal(cols[idxInef]), pct:numVal(cols[idxPct]) });
     }
-    let mes=idxMes>=0?(cols[idxMes]||'').trim():'';
-    if(mes && idxProdPct>=0){
+    let mes=mesesExternos?(mesesExternos[prodRowIdx]||'').trim():(idxMes>=0?(cols[idxMes]||'').trim():'');
+    let tieneDatosMes=idxProdPct>=0 && cols[idxProdPct];
+    if(mes && tieneDatosMes){
       DATA_PROD.push({ mes, pct:numVal(cols[idxProdPct]), kmTotalMes:numVal(cols[idxKmTotalMes]), kmServMes:numVal(cols[idxKmServMes]), kmInefMes:numVal(cols[idxKmInefMes]) });
     }
+    if(idxProdPct>=0 && cols[idxProdPct]) prodRowIdx++;
   }
 }
 
@@ -334,7 +337,16 @@ window.addEventListener('DOMContentLoaded',async()=>{
   let ov=document.getElementById('loadingOverlay');
   try{
     let res=await fetch(csvUrl()); if(!res.ok) throw new Error('Error HTTP');
-    let txt=await res.text(); parseCSV(txt);
+    let txt=await res.text();
+    let mesesExternos=[];
+    try{
+      let resMes=await fetch(csvUrl('AE2:AE200'));
+      if(resMes.ok){
+        let txtMes=await resMes.text();
+        mesesExternos=txtMes.split(/\r?\n/).map(l=>l.replace(/^"|"$/g,'').trim()).filter(l=>l!=='');
+      }
+    }catch(e){ console.warn('No se pudo cargar columna Mes por separado', e); }
+    parseCSV(txt, mesesExternos);
     if(!DATA_UNIDAD.length) throw new Error('No se encontraron datos');
     cascadeFilters(); draw(); ov.classList.add('hidden'); setTimeout(()=>ov.style.display='none',500);
   }catch(e){ ov.style.display='none'; document.getElementById('errMsg').textContent=e.message; document.getElementById('errBanner').classList.remove('hidden'); console.error(e); }

@@ -270,7 +270,6 @@ td{padding:7px 12px;vertical-align:middle;}
       <thead>
         <tr>
           <th id="th-id" onclick="srt('IdVehiculo')">Unidad</th>
-          <th id="th-asig" onclick="srt('asignacion')">Asignación fija</th>
           <th id="th-ops" onclick="srt('cta_ops')" class="dsc">Operadores distintos</th>
           <th class="ns">Estatus</th>
         </tr>
@@ -366,8 +365,8 @@ async function loadData(){
     const sem = semT.replace(/"/g,'').trim();
     document.getElementById('semanaTag').textContent = 'Datos actualizados a semana ' + sem;
 
-    // 2) Datos A:F
-    const res = await fetch(BASE+'&range=A1:F');
+    // 2) Datos A:E
+    const res = await fetch(BASE+'&range=A1:E');
     const csv = await res.text();
     const rows = parseCSV(csv);
     rows.shift(); // quitar header
@@ -377,8 +376,7 @@ async function loadData(){
       IdVehiculo: +r[1],
       viajes: +r[2],
       cta_ops: +r[3],
-      operadores: r[4],
-      asignacion: (r[5]||'').trim()
+      operadores: r[4]
     }));
 
     DATA = RAW.map(r=>({...r, ops:parseOps(r.operadores)}));
@@ -404,13 +402,7 @@ let sortF='cta_ops',sortD='d';
 
 function getRows(){
   const d=[...DATA];
-  d.sort((a,b)=>{
-    const av=a[sortF],bv=b[sortF];
-    let cmp;
-    if(typeof av==='string'||typeof bv==='string') cmp=String(av||'').localeCompare(String(bv||''),'es',{numeric:true,sensitivity:'base'});
-    else cmp=av-bv;
-    return sortD==='d'?-cmp:cmp;
-  });
+  d.sort((a,b)=>sortD==='d'?b[sortF]-a[sortF]:a[sortF]-b[sortF]);
   return d;
 }
 
@@ -432,7 +424,6 @@ function renderTable(){
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td><div class="td-id"><div class="veh-icon"></div><span class="td-num">${row.IdVehiculo}</span></div></td>
-      <td><span style="font-size:12px;color:var(--text2);">${row.asignacion||'—'}</span></td>
       <td><span class="ops-badge ${obCls(row.cta_ops)}">${row.cta_ops}</span></td>
       <td><span class="spill ${si.c}"><span class="sp-dot"></span>${si.l}</span></td>
     `;
@@ -503,8 +494,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalBtn();});
 
 function srt(field){
   if(sortF===field)sortD=sortD==='d'?'a':'d';else{sortF=field;sortD='d';}
-  ['th-id','th-asig','th-ops'].forEach(id=>document.getElementById(id)?.classList.remove('asc','dsc'));
-  const map={IdVehiculo:'th-id',asignacion:'th-asig',cta_ops:'th-ops'};
+  ['th-id','th-ops'].forEach(id=>document.getElementById(id)?.classList.remove('asc','dsc'));
+  const map={IdVehiculo:'th-id',cta_ops:'th-ops'};
   document.getElementById(map[sortF])?.classList.add(sortD==='d'?'dsc':'asc');
   renderTable();
 }

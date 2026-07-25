@@ -1533,20 +1533,29 @@ async function loadSheet(){
     // ═══════════════════════════════════════════════════════════════
     // FASE 3B: SIN CACHÉ → carga completa desde el final (primera vez)
     // ═══════════════════════════════════════════════════════════════
-    let totalRows = 0;
-    if(cachedCount > FIRST_CHUNK){
+    let totalRows = await countPromise;
+    if(totalRows === 0 && cachedCount > 0){
+      // La consulta de conteo en vivo falló: usar el último valor conocido como respaldo
+      console.warn('COUNT en vivo devolvió 0, usando cachedCount de respaldo:', cachedCount);
       totalRows = cachedCount;
-    } else {
-      totalRows = await countPromise;
     }
 
     const firstOffset = totalRows > FIRST_CHUNK ? (totalRows - FIRST_CHUNK) : 0;
     const firstLimit  = totalRows > 0 ? Math.min(FIRST_CHUNK, totalRows) : FIRST_CHUNK;
 
-    const res=await fetch(csvUrl(firstOffset, firstLimit));
+    let res=await fetch(csvUrl(firstOffset, firstLimit));
     if(!res.ok) throw new Error('HTTP '+res.status+'. Verifica que el Sheet sea público (Compartir → Cualquier persona con el enlace).');
-    const firstRows=parseCSV(await res.text());
-    if(!firstRows.length) throw new Error('Sin filas válidas. Abre F12 → Console para ver el detalle.');
+    let firstRows=parseCSV(await res.text());
+    if(!firstRows.length){
+      // El offset calculado (basado en un conteo posiblemente desactualizado) quedó fuera de rango.
+      // Reintentar desde el principio de la hoja antes de darnos por vencidos.
+      console.warn('Offset', firstOffset, 'devolvió 0 filas; reintentando desde offset 0.');
+      const retryRes = await fetch(csvUrl(0, FIRST_CHUNK));
+      if(retryRes.ok){
+        firstRows = parseCSV(await retryRes.text());
+      }
+      if(!firstRows.length) throw new Error('Sin filas válidas. Abre F12 → Console para ver el detalle.');
+    }
     DATA=[...firstRows];
     firstRows.forEach(r=>{ const mes=normMonth(getFecha(r)); if(mes) loadedMonths.add(mes); });
     if(banner) banner.classList.add('hidden');

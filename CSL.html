@@ -3,119 +3,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bitácora de Solicitudes</title>
+<title>Solicitudes Logísticas | TRAXIÓN</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --steel: #2B3A42;
-    --steel-dark: #1D2830;
-    --paper: #F6F4EF;
-    --paper-line: #E4DFD3;
+    --navy: #1E2433;
+    --navy-soft: #2A3244;
+    --green: #8DC63F;
+    --green-dark: #6FA82E;
+    --title-blue: #1B4F72;
+    --page-bg: #F2F4F7;
     --ink: #23282B;
-    --ink-soft: #6B7480;
-    --orange: #E8622C;
-    --orange-dark: #C94F1F;
+    --ink-soft: #67707A;
+    --line: #E1E5EA;
     --ok-green: #2F7D5A;
     --err-red: #C0392B;
-    --radius: 6px;
+    --radius: 10px;
   }
   *{box-sizing:border-box;}
   html,body{
     margin:0;
     padding:0;
-    background:var(--steel-dark);
-    background-image:
-      radial-gradient(circle at 10% 10%, rgba(255,255,255,0.03), transparent 40%),
-      radial-gradient(circle at 90% 90%, rgba(255,255,255,0.03), transparent 40%);
-    font-family:'IBM Plex Sans', -apple-system, sans-serif;
+    background:var(--page-bg);
+    font-family:'Inter', -apple-system, sans-serif;
     color:var(--ink);
     min-height:100vh;
-    display:flex;
-    align-items:flex-start;
-    justify-content:center;
-    padding:40px 16px;
   }
-  .ticket{
-    width:100%;
-    max-width:560px;
-    background:var(--paper);
-    border-radius:var(--radius);
-    box-shadow:0 30px 60px -20px rgba(0,0,0,0.5);
-    overflow:hidden;
-  }
-  /* --- Stub / encabezado tipo ticket --- */
-  .stub{
-    background:var(--steel);
+
+  /* --- Barra superior estilo Traxion --- */
+  .topbar{
+    background:var(--navy);
     color:#fff;
-    padding:22px 26px;
+    padding:16px 32px;
     display:flex;
-    justify-content:space-between;
     align-items:center;
-    gap:16px;
+    gap:12px;
   }
-  .stub-title{
-    display:flex;
-    flex-direction:column;
-    gap:4px;
+  .topbar .brand{
+    font-weight:800;
+    font-size:17px;
+    letter-spacing:0.02em;
+    color:var(--green);
   }
-  .eyebrow{
-    font-size:11px;
-    letter-spacing:0.16em;
-    text-transform:uppercase;
-    color:#B8C4CC;
+  .topbar .sep{ color:#4C5568; }
+  .topbar .crumb{
     font-weight:600;
+    font-size:14px;
+    color:#E7EAEE;
   }
-  .stub-title h1{
+
+  /* --- Encabezado de página --- */
+  .page-head{
+    max-width:640px;
+    margin:0 auto;
+    padding:28px 20px 0;
+  }
+  .page-head h1{
     margin:0;
-    font-size:20px;
-    font-weight:700;
+    font-size:26px;
+    font-weight:800;
+    color:var(--title-blue);
     letter-spacing:-0.01em;
   }
-  .folio-box{
-    text-align:right;
+  .page-head .folio-line{
+    margin-top:6px;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .page-head .folio-line b{
     font-family:'IBM Plex Mono', monospace;
-    flex-shrink:0;
-  }
-  .folio-label{
-    font-size:10px;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:#B8C4CC;
-  }
-  .folio-number{
-    font-size:19px;
+    color:var(--green-dark);
     font-weight:600;
-    color:var(--orange);
-    transition:color 0.2s;
   }
-  .folio-number.pending{color:#8b98a1; font-weight:400; font-style:italic; font-size:14px;}
 
-  /* --- Perforación --- */
-  .perf{
-    position:relative;
-    height:0;
-    border-top:2px dashed var(--paper-line);
-    margin:0 26px;
+  /* --- Tarjeta principal --- */
+  .card-wrap{
+    max-width:640px;
+    margin:16px auto 48px;
+    padding:0 20px;
   }
-  .perf::before, .perf::after{
-    content:"";
-    position:absolute;
-    top:-11px;
-    width:22px;
-    height:22px;
-    background:var(--steel-dark);
-    border-radius:50%;
+  .card{
+    background:#fff;
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    box-shadow:0 12px 28px -18px rgba(30,36,51,0.35);
+    overflow:hidden;
   }
-  .perf::before{ left:-37px; }
-  .perf::after{ right:-37px; }
+  .card-accent{
+    height:4px;
+    background:linear-gradient(90deg, var(--green), var(--title-blue));
+  }
 
-  /* --- Cuerpo del formulario --- */
   form{
-    padding:28px 26px 26px;
+    padding:30px 30px 28px;
     display:flex;
     flex-direction:column;
-    gap:18px;
+    gap:20px;
   }
   .field{
     display:flex;
@@ -123,13 +107,13 @@
     gap:6px;
   }
   .field label{
-    font-size:12px;
-    font-weight:600;
+    font-size:12.5px;
+    font-weight:700;
     letter-spacing:0.03em;
     color:var(--ink-soft);
     text-transform:uppercase;
   }
-  .field label .req{ color:var(--orange); margin-left:2px; }
+  .field label .req{ color:var(--green-dark); margin-left:2px; }
   .field .hint{
     font-size:12px;
     color:var(--ink-soft);
@@ -137,33 +121,34 @@
   }
 
   select, input[type=text], input[type=date], textarea{
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:'Inter', sans-serif;
     font-size:14.5px;
     color:var(--ink);
     background:#fff;
-    border:1px solid #D8D2C4;
-    border-radius:var(--radius);
-    padding:10px 12px;
+    border:1px solid #D3D8DE;
+    border-radius:8px;
+    padding:11px 12px;
     width:100%;
     transition:border-color 0.15s, box-shadow 0.15s;
   }
   select:focus, input:focus, textarea:focus{
     outline:none;
-    border-color:var(--orange);
-    box-shadow:0 0 0 3px rgba(232,98,44,0.15);
+    border-color:var(--title-blue);
+    box-shadow:0 0 0 3px rgba(27,79,114,0.13);
   }
   textarea{ resize:vertical; min-height:88px; line-height:1.5; }
 
   input[readonly]{
-    background:#EFEBE2;
+    background:#F0F2F5;
     color:var(--ink-soft);
     font-family:'IBM Plex Mono', monospace;
     font-size:14px;
     cursor:not-allowed;
+    border-style:dashed;
   }
 
   select{ appearance:none; -webkit-appearance:none;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7480' stroke-width='2.5'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2367707A' stroke-width='2.5'><polyline points='6 9 12 15 18 9'/></svg>");
     background-repeat:no-repeat;
     background-position:right 12px center;
     padding-right:36px;
@@ -176,121 +161,278 @@
   }
   @media (max-width:480px){
     .row-two{ grid-template-columns:1fr; }
-    .perf::before{ left:-11px; }
-    .perf::after{ right:-11px; }
+    .topbar{ padding:14px 18px; }
   }
 
   button.submit{
-    margin-top:6px;
-    background:var(--orange);
+    margin-top:4px;
+    background:var(--navy);
     color:#fff;
     border:none;
-    border-radius:var(--radius);
+    border-radius:8px;
     padding:13px 18px;
     font-size:14.5px;
-    font-weight:600;
+    font-weight:700;
     letter-spacing:0.01em;
     cursor:pointer;
     transition:background 0.15s, transform 0.05s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
   }
-  button.submit:hover{ background:var(--orange-dark); }
+  button.submit::after{
+    content:"";
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--green);
+  }
+  button.submit:hover{ background:var(--navy-soft); }
   button.submit:active{ transform:scale(0.99); }
-  button.submit:disabled{ background:#C9BBB0; cursor:not-allowed; }
+  button.submit:disabled{ background:#B7BCC5; cursor:not-allowed; }
+  button.submit:disabled::after{ display:none; }
 
   .status{
     display:none;
-    border-radius:var(--radius);
+    border-radius:8px;
     padding:12px 14px;
     font-size:13.5px;
     line-height:1.5;
   }
   .status.show{ display:block; }
-  .status.ok{ background:#E7F3EC; color:var(--ok-green); border:1px solid #BFE0CC; }
+  .status.ok{ background:#EEF6E7; color:var(--ok-green); border:1px solid #CBE4B8; }
   .status.err{ background:#FBEAE7; color:var(--err-red); border:1px solid #F0C6BE; }
   .status strong{ font-family:'IBM Plex Mono', monospace; }
 
   .foot-note{
     text-align:center;
-    font-size:11px;
-    color:#7C8790;
-    padding:14px 26px 22px;
+    font-size:11.5px;
+    color:#8E96A0;
+    padding:14px 30px 24px;
+  }
+
+  /* --- Tarjeta de notas / especificaciones --- */
+  .notes-card{
+    background:#fff;
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    box-shadow:0 12px 28px -18px rgba(30,36,51,0.25);
+    overflow:hidden;
+    margin-top:18px;
+  }
+  .notes-head{
+    background:var(--navy);
+    color:#fff;
+    padding:14px 24px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .notes-head .dot{
+    width:9px; height:9px;
+    border-radius:50%;
+    background:var(--green);
+    flex-shrink:0;
+  }
+  .notes-head h2{
+    margin:0;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:0.02em;
+  }
+  .notes-body{
+    padding:22px 24px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .notes-section h3{
+    margin:0 0 8px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--title-blue);
+  }
+  .notes-section p{
+    margin:0 0 6px;
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--ink);
+  }
+  .notes-section ul{
+    margin:0;
+    padding-left:18px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .notes-section li{
+    font-size:13.5px;
+    line-height:1.5;
+    color:var(--ink);
+  }
+  .notes-section li b, .notes-section p b{
+    color:var(--navy);
+    font-weight:700;
+  }
+  .pill{
+    display:inline-block;
+    background:#EEF6E7;
+    color:var(--ok-green);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:5px;
+    margin-left:4px;
+  }
+  .pill.urgent{
+    background:#FBEAE7;
+    color:var(--err-red);
+  }
+  .notes-section a{
+    color:var(--title-blue);
+    font-weight:600;
+    text-decoration:none;
+  }
+  .notes-section a:hover{ text-decoration:underline; }
+  .email-list{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    margin-top:4px;
+  }
+  .spec-row{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+  }
+  .spec-label{
+    flex:0 0 108px;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--title-blue);
+  }
+  .spec-text{
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--ink);
+  }
+  @media (max-width:480px){
+    .spec-row{ flex-direction:column; gap:3px; }
   }
 </style>
 </head>
 <body>
 
-<div class="ticket">
-  <div class="stub">
-    <div class="stub-title">
-      <span class="eyebrow">Registro de solicitudes</span>
-      <h1>Bitácora</h1>
-    </div>
-    <div class="folio-box">
-      <div class="folio-label">Folio</div>
-      <div class="folio-number pending" id="folioDisplay">se asigna al enviar</div>
-    </div>
+<div class="topbar">
+  <span class="brand">TRAXIÓN</span>
+  <span class="sep">|</span>
+  <span class="crumb">Modificaciones de Croquis</span>
+</div>
+
+<div class="page-head">
+  <h1>Solicitudes Logísticas</h1>
+  <div class="folio-line">Folio asignado al enviar: <b id="folioDisplay">se asigna al enviar</b></div>
+</div>
+
+<div class="card-wrap">
+  <div class="card">
+    <div class="card-accent"></div>
+
+    <form id="bitacoraForm">
+
+      <div class="field">
+        <label for="ruta">Planta <span class="req">*</span></label>
+        <select id="ruta" name="ruta" required>
+          <option value="" disabled selected>Selecciona una planta…</option>
+          <option>HOLCIM</option>
+          <option>CAMIONES</option>
+          <option>EXTENSION</option>
+          <option>MOTORES NORTE</option>
+          <option>METALSA</option>
+          <option>VAN</option>
+          <option>SABRITAS SALTILLO</option>
+          <option>DEACERO PLANTA SALTILLO</option>
+          <option>MIXING</option>
+          <option>ISRINGHAUSEN</option>
+          <option>BORGWARNER RAMOS</option>
+          <option>BOCAR</option>
+          <option>MOTORES SUR</option>
+          <option>DRAXTON SALTILLO</option>
+          <option>OMNISOURCE</option>
+          <option>CINSA</option>
+          <option>SANTA ANITA</option>
+          <option>ALPHABET</option>
+          <option>HI-LEX</option>
+          <option>MONTE BLANCO</option>
+          <option>FEHRER LIP SAL</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="tipoSolicitud">Tipo de solicitud <span class="req">*</span></label>
+        <select id="tipoSolicitud" name="tipoSolicitud" required>
+          <option value="" disabled selected>Selecciona un tipo…</option>
+          <option>Modificación de recorrido</option>
+          <option>Modificación de tiempo</option>
+          <option>Croquis nuevos / Trazo nuevo</option>
+          <option>Reingeniería</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="descripcion">Descripción de la solicitud <span class="req">*</span></label>
+        <textarea id="descripcion" name="descripcion" placeholder="Describe el detalle de la solicitud…" required></textarea>
+      </div>
+
+      <div class="row-two">
+        <div class="field">
+          <label for="fechaSolicitud">Fecha de solicitud</label>
+          <input type="text" id="fechaSolicitud" readonly>
+          <span class="hint">Se registra automáticamente</span>
+        </div>
+        <div class="field">
+          <label for="fechaCompromiso">Fecha de entrega <span class="req">*</span></label>
+          <input type="date" id="fechaCompromiso" name="fechaCompromiso" required>
+        </div>
+      </div>
+
+      <div id="statusBox" class="status"></div>
+
+      <button type="submit" class="submit" id="submitBtn">Registrar solicitud</button>
+    </form>
+
+    <div class="foot-note">Los registros se guardan directamente en la hoja "Bitacora" de Google Sheets.</div>
   </div>
 
-  <div class="perf"></div>
-
-  <form id="bitacoraForm">
-
-    <div class="field">
-      <label for="ruta">Planta / Ruta <span class="req">*</span></label>
-      <select id="ruta" name="ruta" required>
-        <option value="" disabled selected>Selecciona una planta…</option>
-        <option>HOLCIM</option>
-        <option>CAMIONES</option>
-        <option>EXTENSION</option>
-        <option>MOTORES NORTE</option>
-        <option>METALSA</option>
-        <option>VAN</option>
-        <option>SABRITAS SALTILLO</option>
-        <option>DEACERO PLANTA SALTILLO</option>
-        <option>MIXING</option>
-        <option>ISRINGHAUSEN</option>
-        <option>BORGWARNER RAMOS</option>
-        <option>BOCAR</option>
-        <option>MOTORES SUR</option>
-        <option>DRAXTON SALTILLO</option>
-        <option>OMNISOURCE</option>
-        <option>CINSA</option>
-        <option>SANTA ANITA</option>
-        <option>ALPHABET</option>
-        <option>HI-LEX</option>
-        <option>MONTE BLANCO</option>
-        <option>FEHRER LIP SAL</option>
-      </select>
+  <div class="notes-card">
+    <div class="notes-head">
+      <span class="dot"></span>
+      <h2>Especificaciones requeridas por tipo de solicitud</h2>
     </div>
+    <div class="notes-body" style="gap:14px;">
 
-    <div class="field">
-      <label for="tipoSolicitud">Tipo de solicitud <span class="req">*</span></label>
-      <input type="text" id="tipoSolicitud" name="tipoSolicitud" placeholder="Ej. Mantenimiento, Unidad extra, Cambio de ruta…" required>
-    </div>
-
-    <div class="field">
-      <label for="descripcion">Descripción de la solicitud <span class="req">*</span></label>
-      <textarea id="descripcion" name="descripcion" placeholder="Describe el detalle de la solicitud…" required></textarea>
-    </div>
-
-    <div class="row-two">
-      <div class="field">
-        <label for="fechaSolicitud">Fecha de solicitud</label>
-        <input type="text" id="fechaSolicitud" readonly>
-        <span class="hint">Se registra automáticamente</span>
+      <div class="spec-row">
+        <span class="spec-label">Tiempos de entrega</span>
+        <span class="spec-text">Recorrido, tiempo y croquis nuevos <span class="pill">48 hrs antes</span> &nbsp;·&nbsp; Reingeniería <span class="pill urgent">7 días antes</span></span>
       </div>
-      <div class="field">
-        <label for="fechaCompromiso">Fecha compromiso <span class="req">*</span></label>
-        <input type="date" id="fechaCompromiso" name="fechaCompromiso" required>
+
+      <div class="spec-row">
+        <span class="spec-label">Adjuntar</span>
+        <span class="spec-text">Para complementar la descripción, enviar por correo la liga de Maps o una imagen ilustrativa del punto. Si la solicitud es de reingeniería, el formato Excel con: usuario, calle, número, colonia, C.P. y ciudad.</span>
       </div>
+
+      <div class="spec-row">
+        <span class="spec-label">Enviar a</span>
+        <span class="spec-text"><a href="mailto:l.ruiz@traxion.global">l.ruiz@traxion.global</a> &nbsp;CC: <a href="mailto:f.deleon@lidcorp.mx">f.deleon@lidcorp.mx</a>, <a href="mailto:lu.vazqueza@traxion.global">lu.vazqueza@traxion.global</a> — junto con captura de pantalla y folio legible.</span>
+      </div>
+
     </div>
-
-    <div id="statusBox" class="status"></div>
-
-    <button type="submit" class="submit" id="submitBtn">Registrar solicitud</button>
-  </form>
-
-  <div class="foot-note">Los registros se guardan directamente en la hoja "Bitacora" de Google Sheets.</div>
+  </div>
 </div>
 
 <script>

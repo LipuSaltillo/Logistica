@@ -6,6 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Distancia VA | Traxión</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -75,6 +80,9 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
 .chart-hdr-sub{font-size:11px;color:#6b7a99}
 .chart-wrap{padding:16px;height:280px}
 .chart-wrap.tall{height:320px}
+.map-wrap{padding:16px;height:480px}
+.map-wrap #mapaVA{width:100%;height:100%;border-radius:8px}
+.map-legend-line{width:20px;height:2px;display:inline-block;border-radius:1px}
 .table-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}
 .table-hdr{padding:12px 20px;border-bottom:1px solid #dde3f0;display:flex;justify-content:space-between;align-items:center}
 .table-hdr-title{font-weight:700;font-size:13px}
@@ -261,6 +269,24 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
       <div class="chart-wrap tall"><canvas id="chartPlanta"></canvas></div>
     </div>
 
+    <!-- Mapa: domicilio vs punto de inicio de servicio -->
+    <div class="chart-card full">
+      <div class="chart-hdr">
+        <div>
+          <div class="chart-hdr-title">Mapa · Domicilio vs. Inicio de servicio</div>
+          <div class="chart-hdr-sub">La línea conecta el domicilio del operador con el punto de inicio de su ruta</div>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--trx-acero)"></span>Domicilio</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--trx-navy2,#222d42)"></span>Inicio de servicio</div>
+          <div class="legend-item"><span class="map-legend-line" style="background:var(--trx-verde)"></span>0–meta</div>
+          <div class="legend-item"><span class="map-legend-line" style="background:var(--trx-oro)"></span>meta–10</div>
+          <div class="legend-item"><span class="map-legend-line" style="background:var(--trx-terracota)"></span>&gt;10</div>
+        </div>
+      </div>
+      <div class="map-wrap"><div id="mapaVA"></div></div>
+    </div>
+
     <!-- Gráfica Tendencia full -->
     <div class="chart-card full">
       <div class="chart-hdr">
@@ -352,6 +378,7 @@ let chRangos = null, chGerente = null, chPlanta = null, chTend = null;
 // ── UTILS ────────────────────────────────────────────
 const $ = id => document.getElementById(id);
 const num = v => { let n = parseFloat(String(v||'').replace(/[,%\s]/g,'')); return isNaN(n)?0:n; };
+const numOrNull = v => { let n = parseFloat(String(v||'').replace(/[,%\s]/g,'')); return isNaN(n)?null:n; };
 const fmt = (n,d=2) => Number(n||0).toFixed(d);
 const cleanH = h => h.replace(/["\u00A0\uFEFF\r]/g,'').replace(/\s+/g,' ').trim().toLowerCase();
 
@@ -387,9 +414,13 @@ function parseCSV(text){
   let iUnidad=find('unidad','tour unit id','unit id');
   let iSem   =find('semana','week','sem');
   let iRuta  =find('ruta','route','service id');
+  let iStLat =find('st lat','start lat');
+  let iStLong=find('st long','start long','st lng','start lng');
+  let iEndLat =find('end lat');
+  let iEndLong=find('end long','end lng');
   if(iNom<0) iNom=0;
 
-  console.log('Cols →',{iDist,iGer,iPla,iOrd,iNom,iUnidad,iSem,iRuta});
+  console.log('Cols →',{iDist,iGer,iPla,iOrd,iNom,iUnidad,iSem,iRuta,iStLat,iStLong,iEndLat,iEndLong});
 
   ROWS=[];
   for(let i=1;i<lines.length;i++){
@@ -406,6 +437,10 @@ function parseCSV(text){
       unidad : iUnidad>=0 ? (c[iUnidad]||'–').trim()         : '–',
       semana : iSem>=0    ? (c[iSem]||'–').trim()            : '–',
       ruta   : iRuta>=0   ? (c[iRuta]||'–').trim()           : '–',
+      stLat  : iStLat>=0   ? numOrNull(c[iStLat])   : null,
+      stLong : iStLong>=0  ? numOrNull(c[iStLong])  : null,
+      endLat : iEndLat>=0  ? numOrNull(c[iEndLat])  : null,
+      endLong: iEndLong>=0 ? numOrNull(c[iEndLong]) : null,
     });
   }
 }
@@ -478,8 +513,74 @@ function aplicarFiltros(){
   drawGerente(opsVis);
   drawPlanta(opsVis);
   drawTendencia(filas);
+  drawMapa(filas);
   drawTop20(opsVis);
   drawAll(opsVis);
+}
+
+// ── MAPA: domicilio vs. inicio de servicio ────────────
+let mapaVA=null, clusterHome=null, clusterStart=null, lineasVA=null;
+
+function initMapa(){
+  if(mapaVA) return;
+  mapaVA=L.map('mapaVA',{scrollWheelZoom:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:18,
+    attribution:'&copy; OpenStreetMap'
+  }).addTo(mapaVA);
+  clusterHome=L.markerClusterGroup({maxClusterRadius:40});
+  clusterStart=L.markerClusterGroup({maxClusterRadius:40});
+  lineasVA=L.layerGroup();
+  clusterHome.addTo(mapaVA);
+  clusterStart.addTo(mapaVA);
+  lineasVA.addTo(mapaVA);
+  mapaVA.setView([23.6345,-102.5528],5); // centro México por defecto
+}
+
+function drawMapa(filas){
+  if(typeof L==='undefined') return; // Leaflet no cargó (sin red)
+  initMapa();
+  clusterHome.clearLayers();
+  clusterStart.clearLayers();
+  lineasVA.clearLayers();
+
+  // Deduplicar por operador+ruta para no repetir el mismo punto en cada semana
+  let vistos=new Set();
+  let puntos=[];
+  filas.forEach(r=>{
+    if(r.stLat==null||r.stLong==null||r.endLat==null||r.endLong==null) return;
+    let k=r.nombre.toLowerCase()+'|'+r.ruta;
+    if(vistos.has(k)) return;
+    vistos.add(k);
+    puntos.push(r);
+  });
+
+  if(!puntos.length){
+    mapaVA.setView([23.6345,-102.5528],5);
+    return;
+  }
+
+  let bounds=[];
+  puntos.forEach(r=>{
+    let color=r.dist<=META?'#3f6d44':r.dist<=10?'#b8862f':'#a13d3d';
+    let home=[r.stLat,r.stLong], start=[r.endLat,r.endLong];
+    bounds.push(home,start);
+
+    L.circleMarker(home,{radius:6,color:'#4f6d8c',weight:1,fillColor:'#4f6d8c',fillOpacity:.85})
+      .bindPopup(`<b>${r.nombre}</b><br>Domicilio<br>Planta: ${r.planta}<br>Gerente: ${r.gerente}`)
+      .addTo(clusterHome);
+
+    L.circleMarker(start,{radius:6,color:'#222d42',weight:1,fillColor:'#222d42',fillOpacity:.85})
+      .bindPopup(`<b>${r.nombre}</b><br>Inicio de servicio<br>Ruta: ${r.ruta}<br>Distancia: ${fmt(r.dist,1)} km`)
+      .addTo(clusterStart);
+
+    L.polyline([home,start],{color,weight:2,opacity:.7})
+      .bindPopup(`<b>${r.nombre}</b><br>${fmt(r.dist,1)} km vacíos`)
+      .addTo(lineasVA);
+  });
+
+  if(bounds.length) mapaVA.fitBounds(bounds,{padding:[30,30],maxZoom:12});
+  setTimeout(()=>mapaVA.invalidateSize(),150);
 }
 
 // ── KPIs ─────────────────────────────────────────────

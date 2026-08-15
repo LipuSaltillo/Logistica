@@ -8,6 +8,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+:root{
+  --trx-verde:#3f6d44;      /* verde ejecutivo (antes #84cc16) — estado OK */
+  --trx-verde-bg:#e6ede7;
+  --trx-oro:#b8862f;        /* ámbar ejecutivo (antes #fbbf24) — atención */
+  --trx-oro-bg:#f5eedd;
+  --trx-terracota:#a13d3d;  /* rojo ejecutivo (antes #f87171) — crítico */
+  --trx-terracota-bg:#f3e3e3;
+  --trx-acero:#4f6d8c;      /* azul acero (antes #f97316) — tendencia/secundario */
+  --trx-marca:#84cc16;      /* verde de marca Traxión — solo logo/acentos UI */
+}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#f0f2f7;font-family:'Inter',sans-serif}
 nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48px;gap:14px;position:sticky;top:0;z-index:2000;box-shadow:0 2px 8px rgba(0,0,0,.3);flex-shrink:0;font-family:'Inter',sans-serif;}
@@ -27,7 +37,7 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
 .fg input[type=range]{width:100%;accent-color:#84cc16;cursor:pointer;margin-top:2px}
 .meta-display{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
 .meta-val{font-size:18px;font-weight:700;color:#222d42}
-.meta-badge{background:#e8f5e0;color:#1a6b35;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.meta-badge{background:var(--trx-verde-bg);color:var(--trx-verde);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
 .range-labels{display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:2px}
 .btn-reset{width:100%;padding:7px;border:1px solid #dde3f0;border-radius:6px;background:transparent;font-size:12px;cursor:pointer;margin-top:6px;color:#6b7a99;font-family:'Inter',sans-serif}
 .btn-reset:hover{background:#f0f2f7}
@@ -48,9 +58,9 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
 .kpi-chip{background:#222d42;border-radius:12px;padding:16px;color:#fff;position:relative;overflow:hidden}
 .kpi-chip::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.03)}
 .kpi-chip-lbl{font-size:10px;text-transform:uppercase;opacity:.6;margin-bottom:8px;letter-spacing:.5px}
-.kpi-chip-val{font-size:28px;font-weight:700;color:#84cc16}
-.kpi-chip-val.red{color:#f87171}
-.kpi-chip-val.amber{color:#fbbf24}
+.kpi-chip-val{font-size:28px;font-weight:700;color:var(--trx-verde)}
+.kpi-chip-val.red{color:var(--trx-terracota)}
+.kpi-chip-val.amber{color:var(--trx-oro)}
 .kpi-chip-sub{font-size:11px;opacity:.7;margin-top:6px}
 .kpi-chip-km{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.12);letter-spacing:.2px}
 .section-divider{display:flex;align-items:center;gap:12px;margin:4px 0}
@@ -78,9 +88,9 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
 .data-table td.r{text-align:right}
 .data-table tbody tr:hover{background:#f8faff}
 .pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.pill.green{background:#e8f5e0;color:#2e7d32}
-.pill.amber{background:#fff8e1;color:#e65100}
-.pill.red{background:#ffebee;color:#c62828}
+.pill.green{background:var(--trx-verde-bg);color:var(--trx-verde)}
+.pill.amber{background:var(--trx-oro-bg);color:var(--trx-oro)}
+.pill.red{background:var(--trx-terracota-bg);color:var(--trx-terracota)}
 .rank-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:700}
 .rank-badge.gold{background:#fef3c7;color:#92400e}
 .rank-badge.silver{background:#f1f5f9;color:#475569}
@@ -89,9 +99,9 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
 .dist-bar-wrap{display:flex;align-items:center}
 .dist-bar-bg{flex:1;height:6px;background:#f0f2f7;border-radius:3px;overflow:hidden;min-width:60px}
 .dist-bar-fill{height:100%;border-radius:3px}
-.err{background:#ffebee;border-left:4px solid #c62828;padding:12px;border-radius:8px}
+.err{background:var(--trx-terracota-bg);border-left:4px solid var(--trx-terracota);padding:12px;border-radius:8px}
 .hidden{display:none!important}
-.meta-goal-badge{display:inline-flex;align-items:center;gap:6px;background:#e8f5e0;padding:4px 12px;border-radius:20px;font-size:11px;color:#2e7d32;font-weight:600}
+.meta-goal-badge{display:inline-flex;align-items:center;gap:6px;background:var(--trx-verde-bg);padding:4px 12px;border-radius:20px;font-size:11px;color:var(--trx-verde);font-weight:600}
 .fecha-badge{background:#fff;border:1px solid #dde3f0;border-radius:20px;padding:4px 12px;font-size:12px;color:#6b7a99}
 .kpi-header-row{display:flex;justify-content:space-between;align-items:center}
 .kpi-header-row h2{font-size:16px;font-weight:700;color:#222d42}
@@ -176,7 +186,7 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
     <div class="kpi-header-row">
       <div style="display:flex;align-items:center;gap:12px">
         <h2>Distancia al Trabajo · VA</h2>
-        <div class="meta-goal-badge">Meta: <span id="metaHeaderVal" style="color:#1a6b35">≤ 5 km</span></div>
+        <div class="meta-goal-badge">Meta: <span id="metaHeaderVal" style="color:var(--trx-verde)">≤ 5 km</span></div>
       </div>
       <div class="fecha-badge" id="fechaBadge">–</div>
     </div>
@@ -217,9 +227,9 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
             <div class="chart-hdr-sub">Operadores únicos · etiqueta = km promedio</div>
           </div>
           <div style="display:flex;gap:10px">
-            <div class="legend-item"><span class="legend-dot" style="background:#84cc16"></span>0–meta</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span>meta–10</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>&gt;10</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--trx-verde)"></span>0–meta</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--trx-oro)"></span>meta–10</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--trx-terracota)"></span>&gt;10</div>
           </div>
         </div>
         <div class="chart-wrap"><canvas id="chartRangos"></canvas></div>
@@ -243,9 +253,9 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
           <div class="chart-hdr-sub">Operadores únicos · etiqueta = km promedio por planta</div>
         </div>
         <div style="display:flex;gap:14px">
-          <div class="legend-item"><span class="legend-dot" style="background:#84cc16"></span>0–meta</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span>meta–10</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>&gt;10</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--trx-verde)"></span>0–meta</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--trx-oro)"></span>meta–10</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--trx-terracota)"></span>&gt;10</div>
         </div>
       </div>
       <div class="chart-wrap tall"><canvas id="chartPlanta"></canvas></div>
@@ -259,8 +269,8 @@ nav{background:#1f2937;padding:0 28px;display:flex;align-items:center;height:48p
           <div class="chart-hdr-sub">Línea punteada = tendencia lineal (regresión)</div>
         </div>
         <div style="display:flex;gap:14px">
-          <div class="legend-item"><span class="legend-dot" style="background:#84cc16"></span>km promedio</div>
-          <div class="legend-item"><span style="width:24px;height:2px;background:#f97316;display:inline-block;border-top:2px dashed #f97316;margin-top:5px"></span><span style="margin-left:4px">tendencia</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--trx-verde)"></span>km promedio</div>
+          <div class="legend-item"><span style="width:24px;height:2px;background:var(--trx-acero);display:inline-block;border-top:2px dashed var(--trx-acero);margin-top:5px"></span><span style="margin-left:4px">tendencia</span></div>
         </div>
       </div>
       <div class="chart-wrap tall"><canvas id="chartTendencia"></canvas></div>
@@ -500,7 +510,7 @@ function drawKPIs(ops, filas){
   $('sbPctSub').textContent=ok+' de '+total+' ops.';
   let bar=$('sbBar');
   bar.style.width=pct+'%';
-  bar.style.background=pct>=80?'#84cc16':pct>=60?'#fbbf24':'#f87171';
+  bar.style.background=pct>=80?'#3f6d44':pct>=60?'#b8862f':'#a13d3d';
 }
 
 // ── CHART RANGOS POR SEMANA (apilado) ────────────────
@@ -550,9 +560,9 @@ function drawRangos(filas){
     data:{
       labels,
       datasets:[
-        {label:'0–'+META+' km', data:d0,backgroundColor:'#84cc16',stack:'s',borderRadius:{topLeft:0,topRight:0,bottomLeft:4,bottomRight:4}},
-        {label:META+'–10 km',   data:d1,backgroundColor:'#fbbf24',stack:'s',borderRadius:0},
-        {label:'>10 km',        data:d2,backgroundColor:'#f87171',stack:'s',borderRadius:{topLeft:4,topRight:4,bottomLeft:0,bottomRight:0}},
+        {label:'0–'+META+' km', data:d0,backgroundColor:'#3f6d44',stack:'s',borderRadius:{topLeft:0,topRight:0,bottomLeft:4,bottomRight:4}},
+        {label:META+'–10 km',   data:d1,backgroundColor:'#b8862f',stack:'s',borderRadius:0},
+        {label:'>10 km',        data:d2,backgroundColor:'#a13d3d',stack:'s',borderRadius:{topLeft:4,topRight:4,bottomLeft:0,bottomRight:0}},
       ]
     },
     options:{
@@ -590,7 +600,7 @@ function drawGerente(ops){
     type:'bar',
     data:{
       labels:gers.map(g=>g[0]),
-      datasets:[{data:pcts,backgroundColor:pcts.map(p=>p>=80?'#84cc16':p>=60?'#fbbf24':'#f87171'),borderRadius:6}]
+      datasets:[{data:pcts,backgroundColor:pcts.map(p=>p>=80?'#3f6d44':p>=60?'#b8862f':'#a13d3d'),borderRadius:6}]
     },
     options:{
       indexAxis:'y',responsive:true,maintainAspectRatio:false,
@@ -613,7 +623,7 @@ function drawPlanta(ops){
     p.s+=r.dist; p.n++;
   });
   let plas=[...m.entries()].map(([name,v])=>({name,r0:v.r0,r1:v.r1,r2:v.r2,prom:v.n?v.s/v.n:0}))
-    .sort((a,b)=>(b.r0+b.r1+b.r2)-(a.r0+a.r1+a.r2));
+    .sort((a,b)=>b.prom-a.prom);
 
   const labelPlugin={
     id:'plaLabel',
@@ -639,9 +649,9 @@ function drawPlanta(ops){
     data:{
       labels:plas.map(p=>p.name),
       datasets:[
-        {label:'0–'+META+' km', data:plas.map(p=>p.r0),backgroundColor:'#84cc16',stack:'s',borderRadius:{topLeft:0,topRight:0,bottomLeft:4,bottomRight:4}},
-        {label:META+'–10 km',   data:plas.map(p=>p.r1),backgroundColor:'#fbbf24',stack:'s',borderRadius:0},
-        {label:'>10 km',        data:plas.map(p=>p.r2),backgroundColor:'#f87171',stack:'s',borderRadius:{topLeft:4,topRight:4,bottomLeft:0,bottomRight:0}},
+        {label:'0–'+META+' km', data:plas.map(p=>p.r0),backgroundColor:'#3f6d44',stack:'s',borderRadius:{topLeft:0,topRight:0,bottomLeft:4,bottomRight:4}},
+        {label:META+'–10 km',   data:plas.map(p=>p.r1),backgroundColor:'#b8862f',stack:'s',borderRadius:0},
+        {label:'>10 km',        data:plas.map(p=>p.r2),backgroundColor:'#a13d3d',stack:'s',borderRadius:{topLeft:4,topRight:4,bottomLeft:0,bottomRight:0}},
       ]
     },
     options:{
@@ -697,17 +707,17 @@ function drawTendencia(filas){
         {
           label:'km promedio',
           data:proms,
-          borderColor:'#84cc16',
-          backgroundColor:'rgba(132,204,22,.1)',
+          borderColor:'#3f6d44',
+          backgroundColor:'rgba(63,109,68,.1)',
           fill:true,tension:0.35,
-          pointRadius:5,pointBackgroundColor:'#84cc16',
+          pointRadius:5,pointBackgroundColor:'#3f6d44',
           borderWidth:2,
           order:1
         },
         {
           label:'Tendencia',
           data:trend,
-          borderColor:'#f97316',
+          borderColor:'#4f6d8c',
           borderDash:[6,4],
           borderWidth:2,
           pointRadius:0,
@@ -758,7 +768,7 @@ function drawTop20(ops){
     let cls=r.dist<=META?'green':r.dist<=10?'amber':'red';
     let badge=i===0?'gold':i===1?'silver':i===2?'bronze':'rest';
     let bPct=Math.min(r.dist/max*100,100);
-    let bCol=r.dist<=META?'#84cc16':r.dist<=10?'#fbbf24':'#f87171';
+    let bCol=r.dist<=META?'#3f6d44':r.dist<=10?'#b8862f':'#a13d3d';
     return `<tr>
       <td><span class="rank-badge ${badge}">${i+1}</span></td>
       <td>${r.nombre}</td><td>${r.planta}</td><td>${r.gerente}</td><td>${r.unidad}</td><td>${r.ruta}</td>
